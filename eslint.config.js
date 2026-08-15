@@ -24,7 +24,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['server/**/*.{ts,tsx}', 'server.ts'],
+    files: ['server/**/*.{ts,tsx}', 'server.ts', 'api/**/*.{ts,tsx}'],
     languageOptions: {
       globals: globals.node,
     },

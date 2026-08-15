@@ -250,7 +250,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         {resetDevCode && (
           <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs border border-amber-200 dark:border-amber-800 flex items-start gap-2">
             <div>
-              <p className="font-semibold">Your reset code (development mode):</p>
+              <p className="font-semibold">Your reset code (demo delivery):</p>
               <p className="font-mono font-bold text-base tracking-[0.3em] mt-1">{resetDevCode}</p>
             </div>
           </div>

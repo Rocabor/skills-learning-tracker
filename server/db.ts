@@ -1,12 +1,12 @@
-import initSqlJs, { type Database } from 'sql.js';
+import { createClient } from '@libsql/client';
 import path from 'path';
 import fs from 'fs';
 
 type SqlParam = number | string | Uint8Array | null;
 type SqlParams = SqlParam[] | SqlParam | null;
 
-/** sql.js expects an array for positional binds; wrap scalars so callers can pass either. */
-function normalizeParams(params: SqlParams): SqlParam[] | undefined {
+/** libSQL expects an array for positional binds; wrap scalars so callers can pass either. */
+function normalizeParams(params: SqlParams | undefined): SqlParam[] | undefined {
   if (params === null || params === undefined) return undefined;
   return Array.isArray(params) ? params : [params];
 }
@@ -24,78 +24,50 @@ export async function getDb(): Promise<SqlDatabase> {
     return dbInstance;
   }
 
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  const tursoUrl = process.env.TURSO_DATABASE_URL;
+  const tursoToken = process.env.TURSO_AUTH_TOKEN;
+
+  // Local development: file-based libSQL database (no Turso cloud needed).
+  // Production (Vercel): TURSO_DATABASE_URL + TURSO_AUTH_TOKEN from env vars.
+  const url = tursoUrl || `file:${path.join(process.cwd(), 'data', 'skilltrack.db')}`;
+  if (url.startsWith('file:')) {
+    const filePath = url.slice('file:'.length);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
   }
 
-  const dbPath = path.join(dataDir, 'skilltrack.sqlite');
-  const SQL = await initSqlJs();
+  const client = createClient({ url, authToken: tursoToken });
 
-  let rawDb: Database;
-  if (fs.existsSync(dbPath)) {
-    const fileBuffer = fs.readFileSync(dbPath);
-    try {
-      rawDb = new SQL.Database(fileBuffer);
-      // Check if users table needs migration to email + password schema
-      const checkStmt = rawDb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'");
-      if (checkStmt.step()) {
-        checkStmt.free();
-        // Check columns
-        const colStmt = rawDb.prepare('PRAGMA table_info(users)');
-        let hasEmail = false;
-        while (colStmt.step()) {
-          const col = colStmt.getAsObject();
-          if (col.name === 'email') hasEmail = true;
-        }
-        colStmt.free();
+  const exec = (sql: string, args?: SqlParams) =>
+    client.execute({
+      sql,
+      args: normalizeParams(args),
+    });
 
-        if (!hasEmail) {
-          // Drop old tables to migrate to email + password schema cleanly
-          rawDb.run('DROP TABLE IF EXISTS password_resets');
-          rawDb.run('DROP TABLE IF EXISTS users');
-        }
-      } else {
-        checkStmt.free();
-      }
-    } catch {
-      rawDb = new SQL.Database();
-    }
-  } else {
-    rawDb = new SQL.Database();
-  }
-
-  const persist = () => {
-    try {
-      const data = rawDb.export();
-      const buffer = Buffer.from(data);
-      fs.writeFileSync(dbPath, buffer);
-    } catch (e) {
-      console.error('Failed to persist sqlite to disk:', e);
-    }
+  const tableColumns = async (table: string): Promise<string[]> => {
+    const res = await exec(`PRAGMA table_info(${table})`);
+    return res.rows.map((row) => String(row['name'] ?? ''));
   };
 
-  // Create tables with email + password hash
-  rawDb.run(`
-    CREATE TABLE IF NOT EXISTS users (
+  // Create tables (email + password hash schema).
+  // libSQL executes one statement per call, so each DDL runs separately.
+  const schemaStatements = [
+    `CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       password_hash TEXT NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS password_resets (
+    )`,
+    `CREATE TABLE IF NOT EXISTS password_resets (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       code TEXT NOT NULL,
       expires_at TEXT NOT NULL,
       used INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS skills (
+    )`,
+    `CREATE TABLE IF NOT EXISTS skills (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       name TEXT NOT NULL,
@@ -105,9 +77,8 @@ export async function getDb(): Promise<SqlDatabase> {
       icon TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS sessions (
+    )`,
+    `CREATE TABLE IF NOT EXISTS sessions (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       skill_id TEXT NOT NULL,
@@ -117,61 +88,57 @@ export async function getDb(): Promise<SqlDatabase> {
       tags TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT
-    );
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
+    `CREATE INDEX IF NOT EXISTS idx_resets_user ON password_resets(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_skills_user ON skills(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_sessions_skill ON sessions(skill_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(date)`,
+  ];
+  for (const statement of schemaStatements) {
+    await exec(statement);
+  }
 
-    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-    CREATE INDEX IF NOT EXISTS idx_resets_user ON password_resets(user_id);
-    CREATE INDEX IF NOT EXISTS idx_skills_user ON skills(user_id);
-    CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
-    CREATE INDEX IF NOT EXISTS idx_sessions_skill ON sessions(skill_id);
-    CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(date);
-  `);
-  persist();
+  // Migrate pre-email users table: drop and recreate with the new schema
+  const userCols = await tableColumns('users');
+  if (!userCols.includes('email')) {
+    await exec('DROP TABLE IF EXISTS password_resets');
+    await exec('DROP TABLE IF EXISTS users');
+    await exec(`
+      CREATE TABLE users (
+        id TEXT PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+    `);
+  }
 
   // Migrate older databases: add updated_at to sessions if missing
-  const sessionsColStmt = rawDb.prepare('PRAGMA table_info(sessions)');
-  let hasUpdatedAt = false;
-  while (sessionsColStmt.step()) {
-    const col = sessionsColStmt.getAsObject();
-    if (col.name === 'updated_at') hasUpdatedAt = true;
-  }
-  sessionsColStmt.free();
-  if (!hasUpdatedAt) {
-    rawDb.run('ALTER TABLE sessions ADD COLUMN updated_at TEXT');
-    rawDb.run("UPDATE sessions SET updated_at = created_at WHERE updated_at IS NULL");
-    persist();
+  const sessionCols = await tableColumns('sessions');
+  if (!sessionCols.includes('updated_at')) {
+    await exec('ALTER TABLE sessions ADD COLUMN updated_at TEXT');
+    await exec('UPDATE sessions SET updated_at = created_at WHERE updated_at IS NULL');
   }
 
-  // Helper mapping
   dbInstance = {
     async get<T = Record<string, unknown>>(sql: string, params: SqlParams = null) {
-      const stmt = rawDb.prepare(sql);
-      stmt.bind(normalizeParams(params) ?? null);
-      if (stmt.step()) {
-        const row = stmt.getAsObject();
-        stmt.free();
-        return row as T | null;
-      }
-      stmt.free();
-      return null;
+      const res = await exec(sql, params);
+      const row = res.rows[0];
+      return (row as T | undefined) ?? null;
     },
 
     async all<T = Record<string, unknown>>(sql: string, params: SqlParams = null) {
-      const stmt = rawDb.prepare(sql);
-      stmt.bind(normalizeParams(params) ?? null);
-      const results: T[] = [];
-      while (stmt.step()) {
-        results.push(stmt.getAsObject() as T);
-      }
-      stmt.free();
-      return results;
+      const res = await exec(sql, params);
+      return res.rows as T[];
     },
 
     async run(sql: string, params: SqlParams = null) {
-      rawDb.run(sql, normalizeParams(params));
-      const changes = rawDb.getRowsModified();
-      persist();
-      return { changes };
+      const res = await exec(sql, params);
+      return { changes: res.rowsAffected };
     },
   };
 

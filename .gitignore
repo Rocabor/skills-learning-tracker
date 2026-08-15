@@ -7,8 +7,11 @@ README-template.md
 preview.jpg
 data/README.md
 
-# Runtime database (contains hashed user PINs)
+# Runtime database (contains hashed user passwords)
 data/*.sqlite
+data/*.db
+data/*.db-wal
+data/*.db-shm
 
 # Dependencies
 node_modules/
