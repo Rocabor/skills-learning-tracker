@@ -12,6 +12,7 @@ import {
   Clock,
   Search,
   Trash2,
+  Share2,
 } from 'lucide-react';
 
 interface SkillDetailViewProps {
@@ -26,6 +27,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
     skillStatsMap,
     openLogModalWithSkill,
     openEditSkillModal,
+    openShareModal,
     deleteSession,
     startTimer,
   } = useApp();
@@ -105,6 +107,22 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
   const averageMinutes =
     stats.totalSessions > 0 ? Math.round(stats.totalMinutes / stats.totalSessions) : 0;
 
+  const handleShareCard = () => {
+    openShareModal({
+      title: `${skill.name} Practice Summary`,
+      subtitle: 'Milestone Achievement',
+      headlineValue: formatHoursDecimal(stats.totalMinutes),
+      headlineLabel: `Total practice in ${skill.name}`,
+      metric1Value: `${stats.currentStreak} Days`,
+      metric1Label: 'Active Practice Streak',
+      metric2Value: `${stats.totalSessions}`,
+      metric2Label: 'Total Completed Sessions',
+      skillName: skill.name,
+      skillColor: skill.color,
+      theme: 'dark'
+    });
+  };
+
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">
       {/* Top Breadcrumb & Actions Bar */}
@@ -118,6 +136,15 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
         </button>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={handleShareCard}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-white dark:bg-[#1C201C] text-xs font-medium text-[#1A1D1A] dark:text-[#ECF0EC] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer"
+            title="Generate Share Card"
+          >
+            <Share2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Share Card</span>
+          </button>
+
           <button
             onClick={() => openEditSkillModal(skill)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-white dark:bg-[#1C201C] text-xs font-medium text-[#1A1D1A] dark:text-[#ECF0EC] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer"

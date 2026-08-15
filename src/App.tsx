@@ -7,6 +7,7 @@ import { LogSessionModal } from './components/LogSessionModal';
 import { SkillModal } from './SkillModal';
 import { AuthModal } from './components/AuthModal';
 import { AccessibilityDialog } from './components/AccessibilityDialog';
+import { ShareCardModal } from './components/ShareCardModal';
 import { LandingPage } from './components/LandingPage';
 import { Footer } from './components/Footer';
 import { CheckCircle2 } from 'lucide-react';
@@ -22,7 +23,8 @@ const MainAppContent: React.FC = () => {
     toggleTheme,
     closeModals,
     isLogModalOpen,
-    isSkillModalOpen
+    isSkillModalOpen,
+    isShareModalOpen
   } = useApp();
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -56,7 +58,7 @@ const MainAppContent: React.FC = () => {
         e.preventDefault();
         setIsAccessibilityOpen(true);
       } else if (e.key === 'Escape') {
-        if (isLogModalOpen || isSkillModalOpen || isAuthModalOpen || isAccessibilityOpen) {
+        if (isLogModalOpen || isSkillModalOpen || isAuthModalOpen || isAccessibilityOpen || isShareModalOpen) {
           closeModals();
           setIsAuthModalOpen(false);
           setIsAccessibilityOpen(false);
@@ -71,6 +73,7 @@ const MainAppContent: React.FC = () => {
   }, [
     isLogModalOpen,
     isSkillModalOpen,
+    isShareModalOpen,
     isAuthModalOpen,
     isAccessibilityOpen,
     selectedSkillId,
@@ -129,6 +132,7 @@ const MainAppContent: React.FC = () => {
       {/* Global Modals */}
       <LogSessionModal />
       <SkillModal />
+      <ShareCardModal />
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

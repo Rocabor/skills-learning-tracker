@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo, useCall
 import type { Skill, Session, User, SkillStats, OverallStats, ActiveTimer, AIInsights } from '../types';
 import { getSeededData } from '../data/sampleData';
 import { computeSkillStats, computeOverallStats } from '../utils/streakUtils';
+import type { ShareCardData } from '../utils/shareUtils';
 import confetti from 'canvas-confetti';
 import {
   apiRegister,
@@ -68,6 +69,10 @@ interface AppContextType {
   editingSkill: Skill | null;
   openEditSkillModal: (skill: Skill) => void;
   openAddSkillModal: () => void;
+  isShareModalOpen: boolean;
+  setIsShareModalOpen: (open: boolean) => void;
+  shareCardData: ShareCardData | null;
+  openShareModal: (data: ShareCardData) => void;
   closeModals: () => void;
 
   // Stats
@@ -198,6 +203,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [logModalDefaultSkillId, setLogModalDefaultSkillId] = useState<string | null>(null);
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareCardData, setShareCardData] = useState<ShareCardData | null>(null);
 
   // AI Insights
   const [aiInsight, setAiInsight] = useState<AIInsights | null>(null);
@@ -618,10 +625,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsSkillModalOpen(true);
   };
 
+  const openShareModal = (data: ShareCardData) => {
+    setShareCardData(data);
+    setIsShareModalOpen(true);
+  };
+
   const closeModals = () => {
     setIsLogModalOpen(false);
     setIsSkillModalOpen(false);
     setEditingSkill(null);
+    setIsShareModalOpen(false);
   };
 
   const value: AppContextType = {
@@ -663,6 +676,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     editingSkill,
     openEditSkillModal,
     openAddSkillModal,
+    isShareModalOpen,
+    setIsShareModalOpen,
+    shareCardData,
+    openShareModal,
     closeModals,
     overallStats,
     skillStatsMap,
