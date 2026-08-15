@@ -99,7 +99,7 @@ export const LogSessionModal: React.FC = () => {
         durationMinutes: parsedMins,
         date,
         notes: notes.trim() || null
-      });
+      }).catch(() => {});
     }
 
     closeModals();

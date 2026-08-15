@@ -75,7 +75,7 @@ export const SkillModal: React.FC = () => {
         name: name.trim(),
         color,
         goal
-      });
+      }).catch(() => {});
     }
 
     closeModals();

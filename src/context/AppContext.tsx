@@ -361,12 +361,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Skill CRUD (SQLite synced for logged users, local for guests)
   const addSkill = async (skillData: Omit<Skill, 'id' | 'createdAt'>): Promise<Skill> => {
     if (user && !user.isGuest) {
+      const tempId = `temp-skill-${Date.now()}`;
+      const optimistic: Skill = {
+        ...skillData,
+        id: tempId,
+        createdAt: new Date().toISOString(),
+        userId: user.id,
+      };
+      // Optimistic: render immediately, roll back on failure
+      setSkills((prev) => [optimistic, ...prev]);
       try {
         const created = await apiCreateSkill(skillData);
-        setSkills((prev) => [created, ...prev]);
+        setSkills((prev) => prev.map((s) => (s.id === tempId ? created : s)));
         showToast(`Saved "${created.name}" to your SQLite database`);
         return created;
       } catch (err) {
+        setSkills((prev) => prev.filter((s) => s.id !== tempId));
         const message = err instanceof Error ? err.message : 'Failed to save skill';
         showToast(`Failed to save: ${message}`);
         throw err;
@@ -425,13 +435,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Session CRUD (SQLite synced for logged users, local for guests)
   const addSession = async (sessionData: Omit<Session, 'id' | 'createdAt'>): Promise<Session> => {
-    let createdSession: Session;
     if (user && !user.isGuest) {
-      createdSession = await apiCreateSession(sessionData);
-      setSessions((prev) => [createdSession, ...prev]);
-      showToast(`Logged ${createdSession.durationMinutes}m to SQLite database!`);
+      const tempId = `temp-session-${Date.now()}`;
+      const optimistic: Session = {
+        ...sessionData,
+        id: tempId,
+        createdAt: new Date().toISOString(),
+        userId: user.id,
+      };
+      // Optimistic: show the new session immediately, roll back on failure
+      setSessions((prev) => [optimistic, ...prev]);
+      try {
+        const createdSession = await apiCreateSession(sessionData);
+        setSessions((prev) => prev.map((sess) => (sess.id === tempId ? createdSession : sess)));
+        showToast(`Logged ${createdSession.durationMinutes}m to SQLite database!`);
+        if (!reducedMotion) {
+          try {
+            confetti({
+              particleCount: 50,
+              spread: 60,
+              origin: { y: 0.8 },
+              colors: ['#059669', '#34D399', '#F59E0B', '#10B981'],
+            });
+          } catch {
+            // confetti is best-effort
+          }
+        }
+        return createdSession;
+      } catch (err) {
+        setSessions((prev) => prev.filter((sess) => sess.id !== tempId));
+        const message = err instanceof Error ? err.message : 'Failed to save session';
+        showToast(`Couldn't save your session. ${message}`);
+        throw err;
+      }
     } else {
-      createdSession = {
+      const createdSession: Session = {
         ...sessionData,
         id: `s-${Date.now()}`,
         createdAt: new Date().toISOString(),
@@ -440,23 +478,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setSessions((prev) => [createdSession, ...prev]);
       const skill = skills.find((s) => s.id === sessionData.skillId);
       showToast(`Logged ${sessionData.durationMinutes}m of ${skill?.name || 'practice'}!`);
-    }
-
-    // Micro-confetti celebrate
-    if (!reducedMotion) {
-      try {
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.8 },
-          colors: ['#059669', '#34D399', '#F59E0B', '#10B981'],
-        });
-      } catch {
-        // confetti is best-effort
+      if (!reducedMotion) {
+        try {
+          confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.8 },
+            colors: ['#059669', '#34D399', '#F59E0B', '#10B981'],
+          });
+        } catch {
+          // confetti is best-effort
+        }
       }
+      return createdSession;
     }
-
-    return createdSession;
   };
 
   const updateSession = async (
