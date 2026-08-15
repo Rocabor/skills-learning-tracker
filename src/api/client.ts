@@ -208,9 +208,15 @@ export async function apiSyncBatch(skills: Skill[], sessions: Session[]): Promis
 }
 
 // ---------------- AI INSIGHTS ----------------
-export async function apiGetInsights(): Promise<AIInsights | null> {
+export async function apiGetInsights(
+  skills: Skill[],
+  sessions: Session[],
+  overallStats: { totalHours: number; currentStreak: number; longestStreak: number; activeSkillsCount: number },
+): Promise<AIInsights | null> {
   const res = await fetch('/api/ai/insights', {
+    method: 'POST',
     headers: getAuthHeaders(),
+    body: JSON.stringify({ skills, sessions, overallStats }),
   });
 
   if (!res.ok) {
@@ -218,5 +224,5 @@ export async function apiGetInsights(): Promise<AIInsights | null> {
   }
 
   const data = await res.json();
-  return data.insights || null;
+  return data || null;
 }

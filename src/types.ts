@@ -9,7 +9,7 @@ export interface Skill {
   color: string;
   goal: SkillGoal | null;
   createdAt: string;
-  userId: string;
+  userId?: string;
 }
 
 export interface Session {
@@ -19,7 +19,7 @@ export interface Session {
   date: string;
   notes: string | null;
   createdAt: string;
-  userId: string;
+  userId?: string;
 }
 
 export interface User {
@@ -71,4 +71,11 @@ export interface AIInsights {
   reflectionPrompt: string;
   streakMotivation: string;
   generatedAt: string;
+}
+
+export interface ActiveTimer {
+  skillId: string;
+  startTime: number;
+  elapsedSeconds: number;
+  isRunning: boolean;
 }

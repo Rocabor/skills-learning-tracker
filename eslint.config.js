@@ -25,4 +25,11 @@ export default defineConfig([
       globals: globals.node,
     },
   },
+  {
+    // Context files export both a Provider component and its hook (standard pattern)
+    files: ['src/context/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
