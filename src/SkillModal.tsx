@@ -105,7 +105,7 @@ export const SkillModal: React.FC = () => {
           </h2>
           <button
             onClick={closeModals}
-            className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -170,7 +170,7 @@ export const SkillModal: React.FC = () => {
                 className={`py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                   goalType === 'weekly'
                     ? 'bg-white dark:bg-[#1C201C] text-emerald-700 dark:text-emerald-300 shadow-xs'
-                    : 'text-[#5F6A5F]'
+                    : 'text-[#5F6A5F] dark:text-[#A0AAA0]'
                 }`}
               >
                 Weekly Goal
@@ -181,7 +181,7 @@ export const SkillModal: React.FC = () => {
                 className={`py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                   goalType === 'total'
                     ? 'bg-white dark:bg-[#1C201C] text-emerald-700 dark:text-emerald-300 shadow-xs'
-                    : 'text-[#5F6A5F]'
+                    : 'text-[#5F6A5F] dark:text-[#A0AAA0]'
                 }`}
               >
                 Total Hours
@@ -192,7 +192,7 @@ export const SkillModal: React.FC = () => {
                 className={`py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                   goalType === 'none'
                     ? 'bg-white dark:bg-[#1C201C] text-[#1A1D1A] dark:text-[#ECF0EC] shadow-xs'
-                    : 'text-[#5F6A5F]'
+                    : 'text-[#5F6A5F] dark:text-[#A0AAA0]'
                 }`}
               >
                 No Goal
@@ -239,7 +239,7 @@ export const SkillModal: React.FC = () => {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-xs font-medium rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-sm cursor-pointer"
+                className="px-4 py-2 text-xs font-medium rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 text-white shadow-sm cursor-pointer"
               >
                 {editingSkill ? 'Save Changes' : 'Create Skill'}
               </button>

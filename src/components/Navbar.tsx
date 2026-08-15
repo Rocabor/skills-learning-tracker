@@ -63,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
             className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 rounded-lg p-1"
             aria-label="SkillTrack Home Dashboard"
           >
-            <div className="w-8 h-8 rounded-lg bg-emerald-700 dark:bg-emerald-500 flex items-center justify-center text-white shadow-sm shadow-emerald-600/20 group-hover:scale-105 transition-transform duration-150">
+            <div className="w-8 h-8 rounded-lg bg-emerald-700 dark:bg-emerald-700 flex items-center justify-center text-white shadow-sm shadow-emerald-600/20 group-hover:scale-105 transition-transform duration-150">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2v4" />
                 <path d="m4.93 4.93 2.83 2.83" />
@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                 <button
                   onClick={pauseTimer}
                   title="Pause Timer"
-                  className="p-1 rounded hover:bg-emerald-200/60 dark:hover:bg-emerald-600/60 cursor-pointer"
+                  className="p-1 rounded hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 cursor-pointer"
                 >
                   <Pause className="w-3 h-3" />
                 </button>
@@ -115,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                 <button
                   onClick={resumeTimer}
                   title="Resume Timer"
-                  className="p-1 rounded hover:bg-emerald-200/60 dark:hover:bg-emerald-600/60 cursor-pointer"
+                  className="p-1 rounded hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 cursor-pointer"
                 >
                   <Play className="w-3 h-3" />
                 </button>
@@ -140,7 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                 ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/60'
                 : overallStats.streakStatus === 'at_risk'
                 ? 'bg-amber-50/50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200/50 border-dashed'
-                : 'bg-gray-100 dark:bg-[#1C201C] text-[#5F6A5F] dark:text-[#6B766B] border-[#DDDDD6] dark:border-[#333A33]'
+                : 'bg-gray-100 dark:bg-[#1C201C] text-[#5F6A5F] dark:text-[#A0AAA0] border-[#DDDDD6] dark:border-[#333A33]'
             }`}
             title={`Overall Practice Streak: ${overallStats.currentStreak} days (${
               overallStats.streakStatus === 'active'
@@ -185,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
           {/* Primary Action: + Log Session */}
           <button
             onClick={() => openLogModalWithSkill()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-medium text-xs sm:text-sm shadow-sm transition-all duration-150 active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 text-white font-medium text-xs sm:text-sm shadow-sm transition-all duration-150 active:scale-95 cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span className="hidden sm:inline">Log Session</span>
@@ -256,7 +256,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] flex items-center gap-2 cursor-pointer"
                     >
-                      <RotateCcw className="w-4 h-4 text-[#5F6A5F]" />
+                      <RotateCcw className="w-4 h-4 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                       Reset to Sample Data
                     </button>
 
@@ -267,7 +267,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] flex items-center gap-2 cursor-pointer"
                     >
-                      <Settings className="w-4 h-4 text-[#5F6A5F]" />
+                      <Settings className="w-4 h-4 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                       Preferences & Accessibility
                     </button>
                   </div>

@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
           >
             @Rocabor
           </a>
-          <span className="ml-1 text-[#5F6A5F] dark:text-[#6B766B]">&copy; 2026</span>
+          <span className="ml-1 text-[#5F6A5F] dark:text-[#A0AAA0]">&copy; 2026</span>
         </nav>
       </div>
     </footer>

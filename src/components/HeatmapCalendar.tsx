@@ -331,7 +331,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
               </div>
               <button
                 onClick={() => setActiveDayModal(null)}
-                className="p-1 rounded-lg hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-[#5F6A5F] cursor-pointer"
+                className="p-1 rounded-lg hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-[#5F6A5F] dark:text-[#A0AAA0] cursor-pointer"
                 aria-label="Close day details"
               >
                 ✕

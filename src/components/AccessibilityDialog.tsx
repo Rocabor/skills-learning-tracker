@@ -33,7 +33,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
+            className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

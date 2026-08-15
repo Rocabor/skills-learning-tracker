@@ -95,7 +95,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
   if (!skill || !stats) {
     return (
       <div className="p-8 text-center">
-        <p className="text-sm text-[#5F6A5F]">Skill not found.</p>
+        <p className="text-sm text-[#5F6A5F] dark:text-[#A0AAA0]">Skill not found.</p>
         <button
           onClick={onBack}
           className="mt-4 px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-medium cursor-pointer"
@@ -131,7 +131,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#5F6A5F] hover:text-[#1A1D1A] dark:hover:text-[#ECF0EC] transition-colors cursor-pointer group"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#5F6A5F] dark:text-[#A0AAA0] hover:text-[#1A1D1A] dark:hover:text-[#ECF0EC] transition-colors cursor-pointer group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span>Back to Dashboard</span>
@@ -166,7 +166,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
 
           <button
             onClick={() => openLogModalWithSkill(skill.id)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-semibold shadow-xs cursor-pointer active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 text-white text-xs font-semibold shadow-xs cursor-pointer active:scale-95 transition-all"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Log Session</span>
@@ -269,7 +269,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                       }}
                       title={`${w.weekLabel}: ${w.hours}h`}
                     />
-                    <span className="text-[9px] text-[#5F6A5F] truncate max-w-[36px]">
+                    <span className="text-[9px] text-[#5F6A5F] dark:text-[#A0AAA0] truncate max-w-[36px]">
                       {w.weekLabel}
                     </span>
                   </div>
@@ -297,7 +297,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
 
           {/* Search bar */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#5F6A5F]" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#5F6A5F] dark:text-[#A0AAA0]" />
             <input
               type="text"
               value={searchQuery}
@@ -310,11 +310,11 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
 
         {filteredSessions.length === 0 ? (
           <div className="py-12 text-center">
-            <Clock className="w-8 h-8 text-[#5F6A5F] mx-auto mb-2 opacity-50" />
+            <Clock className="w-8 h-8 text-[#5F6A5F] dark:text-[#A0AAA0] mx-auto mb-2 opacity-50" />
             <p className="text-sm font-medium text-[#1A1D1A] dark:text-[#ECF0EC]">
               {searchQuery ? 'No matching practice sessions found.' : 'No practice sessions logged yet.'}
             </p>
-            <p className="text-xs text-[#5F6A5F] mt-1">
+            <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0] mt-1">
               Start practicing and record your first session!
             </p>
             <button
@@ -353,7 +353,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => openEditSessionModal(session)}
-                      className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] transition-colors cursor-pointer"
                       title="Edit Session"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -364,7 +364,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                           deleteSession(session.id);
                         }
                       }}
-                      className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 transition-colors cursor-pointer"
                       title="Delete Session"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

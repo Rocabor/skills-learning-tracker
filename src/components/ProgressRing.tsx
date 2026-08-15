@@ -84,7 +84,7 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
           </span>
         )}
         {sublabel && (
-          <span className="text-[10px] text-[#5F6A5F] dark:text-[#6B766B]">
+          <span className="text-[10px] text-[#5F6A5F] dark:text-[#A0AAA0]">
             {sublabel}
           </span>
         )}

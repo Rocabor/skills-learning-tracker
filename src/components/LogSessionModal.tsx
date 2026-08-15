@@ -137,7 +137,7 @@ export const LogSessionModal: React.FC = () => {
           </div>
           <button
             onClick={closeModals}
-            className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
@@ -178,12 +178,12 @@ export const LogSessionModal: React.FC = () => {
               <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0]">
                 Duration <span className="text-red-500">*</span>
               </label>
-              <span className="text-[11px] text-[#5F6A5F] dark:text-[#6B766B]">
+              <span className="text-[11px] text-[#5F6A5F] dark:text-[#A0AAA0]">
                 e.g. 45, 1h 30m, or 1.5
               </span>
             </div>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5F6A5F]">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5F6A5F] dark:text-[#A0AAA0]">
                 <Clock className="w-4 h-4" />
               </div>
               <input
@@ -218,7 +218,7 @@ export const LogSessionModal: React.FC = () => {
               Practice Date <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5F6A5F]">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5F6A5F] dark:text-[#A0AAA0]">
                 <CalendarIcon className="w-4 h-4" />
               </div>
               <input
@@ -236,16 +236,16 @@ export const LogSessionModal: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0]">
-                Reflection Notes <span className="text-xs font-normal text-[#5F6A5F]">(Optional)</span>
+                Reflection Notes <span className="text-xs font-normal text-[#5F6A5F] dark:text-[#A0AAA0]">(Optional)</span>
               </label>
-              <span className="text-[11px] text-[#5F6A5F]">What went well? What was challenging?</span>
+              <span className="text-[11px] text-[#5F6A5F] dark:text-[#A0AAA0]">What went well? What was challenging?</span>
             </div>
             <textarea
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Practiced fingerpicking technique on Blackbird. Chord switches felt much smoother..."
-              className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-[#5F6A5F]/60"
+              className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-[#5F6A5F] dark:text-[#A0AAA0]/60"
             />
           </div>
 
@@ -260,7 +260,7 @@ export const LogSessionModal: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-sm font-medium rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer"
+              className="px-5 py-2 text-sm font-medium rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 text-white shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer"
             >
               {editingSession ? 'Save Changes' : 'Save Session'}
             </button>
