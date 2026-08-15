@@ -260,7 +260,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           /* ---------- FORGOT PASSWORD ---------- */
           <div className="space-y-4">
             {!resetDevCode ? (
-              <form onSubmit={handleForgotSubmit} className="space-y-4">
+              <form onSubmit={handleForgotSubmit} noValidate className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                     Email
@@ -296,7 +296,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleResetSubmit} className="space-y-4">
+              <form onSubmit={handleResetSubmit} noValidate className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                     Reset Code
@@ -355,6 +355,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           /* ---------- LOGIN / SIGNUP ---------- */
           <form
             onSubmit={isSignup ? handleSignupSubmit : handleLoginSubmit}
+            noValidate
             className="space-y-4"
           >
             <div>
