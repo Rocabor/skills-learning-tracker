@@ -2,10 +2,13 @@ import initSqlJs, { type Database } from 'sql.js';
 import path from 'path';
 import fs from 'fs';
 
+type SqlParam = number | string | Uint8Array | null;
+type SqlParams = SqlParam[] | Record<string, SqlParam> | null;
+
 export interface SqlDatabase {
-  get(sql: string, params?: any[] | any): Promise<any>;
-  all(sql: string, params?: any[] | any): Promise<any[]>;
-  run(sql: string, params?: any[] | any): Promise<{ changes: number }>;
+  get<T = Record<string, unknown>>(sql: string, params?: SqlParams): Promise<T | null>;
+  all<T = Record<string, unknown>>(sql: string, params?: SqlParams): Promise<T[]>;
+  run(sql: string, params?: SqlParams): Promise<{ changes: number }>;
 }
 
 let dbInstance: SqlDatabase | null = null;
@@ -48,7 +51,7 @@ export async function getDb(): Promise<SqlDatabase> {
       } else {
         checkStmt.free();
       }
-    } catch (e) {
+    } catch {
       rawDb = new SQL.Database();
     }
   } else {
@@ -109,34 +112,31 @@ export async function getDb(): Promise<SqlDatabase> {
 
   // Helper mapping
   dbInstance = {
-    async get(sql: string, params: any[] = []) {
+    async get<T = Record<string, unknown>>(sql: string, params: SqlParams = null) {
       const stmt = rawDb.prepare(sql);
-      const normalizedParams = Array.isArray(params) ? params : [params];
-      stmt.bind(normalizedParams);
+      stmt.bind(params);
       if (stmt.step()) {
         const row = stmt.getAsObject();
         stmt.free();
-        return row;
+        return row as T | null;
       }
       stmt.free();
       return null;
     },
 
-    async all(sql: string, params: any[] = []) {
+    async all<T = Record<string, unknown>>(sql: string, params: SqlParams = null) {
       const stmt = rawDb.prepare(sql);
-      const normalizedParams = Array.isArray(params) ? params : [params];
-      stmt.bind(normalizedParams);
-      const results: any[] = [];
+      stmt.bind(params);
+      const results: T[] = [];
       while (stmt.step()) {
-        results.push(stmt.getAsObject());
+        results.push(stmt.getAsObject() as T);
       }
       stmt.free();
       return results;
     },
 
-    async run(sql: string, params: any[] = []) {
-      const normalizedParams = Array.isArray(params) ? params : [params];
-      rawDb.run(sql, normalizedParams);
+    async run(sql: string, params: SqlParams = null) {
+      rawDb.run(sql, params ?? undefined);
       const changes = rawDb.getRowsModified();
       persist();
       return { changes };
