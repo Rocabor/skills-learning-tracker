@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { app } from './server/app.ts';
-import { getDb } from './server/db.ts';
+import { app } from './server/app.js';
+import { getDb } from './server/db.js';
 
 // ----------------------------------------------------
 // STATIC SERVING & SPA FALLBACK (local dev / local prod)

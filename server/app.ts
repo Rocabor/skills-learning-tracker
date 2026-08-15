@@ -4,9 +4,9 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { z } from 'zod';
 import { GoogleGenAI } from '@google/genai';
-import { getDb } from './db.ts';
-import { generateToken, requireAuth } from './auth.ts';
-import type { AuthRequest } from './auth.ts';
+import { getDb } from './db.js';
+import { generateToken, requireAuth } from './auth.js';
+import type { AuthRequest } from './auth.js';
 
 dotenv.config();
 
