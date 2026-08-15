@@ -3,7 +3,13 @@ import path from 'path';
 import fs from 'fs';
 
 type SqlParam = number | string | Uint8Array | null;
-type SqlParams = SqlParam[] | Record<string, SqlParam> | null;
+type SqlParams = SqlParam[] | SqlParam | null;
+
+/** sql.js expects an array for positional binds; wrap scalars so callers can pass either. */
+function normalizeParams(params: SqlParams): SqlParam[] | undefined {
+  if (params === null || params === undefined) return undefined;
+  return Array.isArray(params) ? params : [params];
+}
 
 export interface SqlDatabase {
   get<T = Record<string, unknown>>(sql: string, params?: SqlParams): Promise<T | null>;
@@ -114,7 +120,7 @@ export async function getDb(): Promise<SqlDatabase> {
   dbInstance = {
     async get<T = Record<string, unknown>>(sql: string, params: SqlParams = null) {
       const stmt = rawDb.prepare(sql);
-      stmt.bind(params);
+      stmt.bind(normalizeParams(params) ?? null);
       if (stmt.step()) {
         const row = stmt.getAsObject();
         stmt.free();
@@ -126,7 +132,7 @@ export async function getDb(): Promise<SqlDatabase> {
 
     async all<T = Record<string, unknown>>(sql: string, params: SqlParams = null) {
       const stmt = rawDb.prepare(sql);
-      stmt.bind(params);
+      stmt.bind(normalizeParams(params) ?? null);
       const results: T[] = [];
       while (stmt.step()) {
         results.push(stmt.getAsObject() as T);
@@ -136,7 +142,7 @@ export async function getDb(): Promise<SqlDatabase> {
     },
 
     async run(sql: string, params: SqlParams = null) {
-      rawDb.run(sql, params ?? undefined);
+      rawDb.run(sql, normalizeParams(params));
       const changes = rawDb.getRowsModified();
       persist();
       return { changes };
