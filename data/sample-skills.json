@@ -1,0 +1,95 @@
+{
+  "skills": [
+    {
+      "id": "skill-1",
+      "name": "Spanish",
+      "color": "#059669",
+      "goal": { "type": "weekly", "targetHours": 5 },
+      "createdAt": "2025-11-01T10:00:00Z"
+    },
+    {
+      "id": "skill-2",
+      "name": "Guitar",
+      "color": "#8B5CF6",
+      "goal": { "type": "total", "targetHours": 100 },
+      "createdAt": "2025-12-15T14:30:00Z"
+    },
+    {
+      "id": "skill-3",
+      "name": "TypeScript",
+      "color": "#3178C6",
+      "goal": null,
+      "createdAt": "2026-01-10T09:00:00Z"
+    },
+    {
+      "id": "skill-4",
+      "name": "Cooking",
+      "color": "#EF4444",
+      "goal": { "type": "weekly", "targetHours": 3 },
+      "createdAt": "2026-01-20T11:00:00Z"
+    },
+    {
+      "id": "skill-5",
+      "name": "AI Engineering",
+      "color": "#F97316",
+      "goal": { "type": "total", "targetHours": 200 },
+      "createdAt": "2025-12-01T08:00:00Z"
+    },
+    {
+      "id": "skill-6",
+      "name": "UI Design",
+      "color": "#EC4899",
+      "goal": { "type": "weekly", "targetHours": 4 },
+      "createdAt": "2026-02-01T16:00:00Z"
+    }
+  ],
+  "sessions": [
+    { "id": "s-001", "skillId": "skill-1", "durationMinutes": 45, "date": "2026-03-19", "notes": "Practiced past tense conjugations. Struggled with irregular verbs but made progress on ser/estar distinction.", "createdAt": "2026-03-19T18:30:00Z" },
+    { "id": "s-002", "skillId": "skill-1", "durationMinutes": 30, "date": "2026-03-18", "notes": "Duolingo + podcast episode on Mexican street food vocabulary.", "createdAt": "2026-03-18T20:00:00Z" },
+    { "id": "s-003", "skillId": "skill-1", "durationMinutes": 60, "date": "2026-03-17", "notes": "Conversation practice with tutor. Topic: travel plans. Got compliment on pronunciation.", "createdAt": "2026-03-17T19:00:00Z" },
+    { "id": "s-004", "skillId": "skill-1", "durationMinutes": 25, "date": "2026-03-16", "notes": "Quick flashcard review on the bus.", "createdAt": "2026-03-16T08:45:00Z" },
+    { "id": "s-005", "skillId": "skill-1", "durationMinutes": 45, "date": "2026-03-15", "notes": null, "createdAt": "2026-03-15T17:30:00Z" },
+    { "id": "s-006", "skillId": "skill-1", "durationMinutes": 40, "date": "2026-03-14", "notes": "Watched a Spanish film with subtitles. Understood about 60%.", "createdAt": "2026-03-14T21:00:00Z" },
+    { "id": "s-007", "skillId": "skill-1", "durationMinutes": 30, "date": "2026-03-13", "notes": "Grammar exercises — subjunctive mood.", "createdAt": "2026-03-13T18:15:00Z" },
+    { "id": "s-008", "skillId": "skill-1", "durationMinutes": 50, "date": "2026-03-12", "notes": null, "createdAt": "2026-03-12T19:30:00Z" },
+    { "id": "s-009", "skillId": "skill-1", "durationMinutes": 35, "date": "2026-03-10", "notes": "Reading practice: short story by Gabriel Garcia Marquez.", "createdAt": "2026-03-10T20:00:00Z" },
+    { "id": "s-010", "skillId": "skill-1", "durationMinutes": 45, "date": "2026-03-08", "notes": "Vocabulary building session.", "createdAt": "2026-03-08T18:00:00Z" },
+    { "id": "s-011", "skillId": "skill-1", "durationMinutes": 30, "date": "2026-03-05", "notes": null, "createdAt": "2026-03-05T19:30:00Z" },
+    { "id": "s-012", "skillId": "skill-1", "durationMinutes": 60, "date": "2026-03-01", "notes": "Monthly review — went through all saved vocabulary from February.", "createdAt": "2026-03-01T10:00:00Z" },
+    { "id": "s-013", "skillId": "skill-1", "durationMinutes": 40, "date": "2026-02-25", "notes": null, "createdAt": "2026-02-25T18:00:00Z" },
+    { "id": "s-014", "skillId": "skill-1", "durationMinutes": 30, "date": "2026-02-20", "notes": "Listening comprehension drills.", "createdAt": "2026-02-20T20:00:00Z" },
+    { "id": "s-015", "skillId": "skill-2", "durationMinutes": 40, "date": "2026-03-19", "notes": "Working on fingerpicking pattern for Blackbird. Getting smoother.", "createdAt": "2026-03-19T20:00:00Z" },
+    { "id": "s-016", "skillId": "skill-2", "durationMinutes": 30, "date": "2026-03-18", "notes": "Chord transitions: G to C to D. Still fumbling the G-C switch.", "createdAt": "2026-03-18T21:00:00Z" },
+    { "id": "s-017", "skillId": "skill-2", "durationMinutes": 45, "date": "2026-03-17", "notes": "Learned intro to Wonderwall. Strumming pattern is tricky.", "createdAt": "2026-03-17T20:30:00Z" },
+    { "id": "s-018", "skillId": "skill-2", "durationMinutes": 25, "date": "2026-03-16", "notes": null, "createdAt": "2026-03-16T19:00:00Z" },
+    { "id": "s-019", "skillId": "skill-2", "durationMinutes": 35, "date": "2026-03-15", "notes": "Scale practice — pentatonic minor in A.", "createdAt": "2026-03-15T20:00:00Z" },
+    { "id": "s-020", "skillId": "skill-2", "durationMinutes": 30, "date": "2026-03-14", "notes": null, "createdAt": "2026-03-14T19:30:00Z" },
+    { "id": "s-021", "skillId": "skill-2", "durationMinutes": 45, "date": "2026-03-13", "notes": "Barre chord exercises. F chord is finally starting to ring cleanly.", "createdAt": "2026-03-13T20:00:00Z" },
+    { "id": "s-022", "skillId": "skill-2", "durationMinutes": 20, "date": "2026-03-12", "notes": "Quick warm-up and finger exercises.", "createdAt": "2026-03-12T18:00:00Z" },
+    { "id": "s-023", "skillId": "skill-2", "durationMinutes": 50, "date": "2026-03-08", "notes": "Jam session along with a backing track.", "createdAt": "2026-03-08T19:00:00Z" },
+    { "id": "s-024", "skillId": "skill-2", "durationMinutes": 30, "date": "2026-03-03", "notes": null, "createdAt": "2026-03-03T20:00:00Z" },
+    { "id": "s-025", "skillId": "skill-2", "durationMinutes": 40, "date": "2026-02-28", "notes": "Learned basic blues riff.", "createdAt": "2026-02-28T19:00:00Z" },
+    { "id": "s-026", "skillId": "skill-3", "durationMinutes": 60, "date": "2026-03-18", "notes": "Generics deep dive — finally understand conditional types and the infer keyword. Built a type-safe event emitter.", "createdAt": "2026-03-18T10:00:00Z" },
+    { "id": "s-027", "skillId": "skill-3", "durationMinutes": 45, "date": "2026-03-17", "notes": "Practiced utility types by recreating Pick, Omit, and Partial from scratch. Starting to think in types.", "createdAt": "2026-03-17T11:00:00Z" },
+    { "id": "s-028", "skillId": "skill-3", "durationMinutes": 30, "date": "2026-03-16", "notes": null, "createdAt": "2026-03-16T10:30:00Z" },
+    { "id": "s-029", "skillId": "skill-3", "durationMinutes": 90, "date": "2026-03-10", "notes": "Built a type-safe API client with Zod schema validation. Spent extra time on error type narrowing — discriminated unions are powerful.", "createdAt": "2026-03-10T09:00:00Z" },
+    { "id": "s-030", "skillId": "skill-3", "durationMinutes": 25, "date": "2026-03-03", "notes": "Quick exploration of template literal types. Wild that you can parse strings at the type level.", "createdAt": "2026-03-03T14:00:00Z" },
+    { "id": "s-031", "skillId": "skill-3", "durationMinutes": 45, "date": "2026-02-22", "notes": "Mapped types and keyof patterns. Refactored a personal project to remove all any usage.", "createdAt": "2026-02-22T10:00:00Z" },
+    { "id": "s-032", "skillId": "skill-4", "durationMinutes": 75, "date": "2026-03-17", "notes": "Made pasta from scratch for the first time. Dough was a bit thick but flavor was great.", "createdAt": "2026-03-17T18:00:00Z" },
+    { "id": "s-033", "skillId": "skill-4", "durationMinutes": 45, "date": "2026-03-15", "notes": "Practiced knife skills — julienne carrots and onion dice.", "createdAt": "2026-03-15T17:00:00Z" },
+    { "id": "s-034", "skillId": "skill-4", "durationMinutes": 60, "date": "2026-03-13", "notes": "Thai green curry. Balanced the spice better this time.", "createdAt": "2026-03-13T18:30:00Z" },
+    { "id": "s-035", "skillId": "skill-4", "durationMinutes": 90, "date": "2026-03-10", "notes": null, "createdAt": "2026-03-10T17:00:00Z" },
+    { "id": "s-036", "skillId": "skill-4", "durationMinutes": 40, "date": "2026-03-05", "notes": "Simple omelette practice. Working on the fold technique.", "createdAt": "2026-03-05T08:00:00Z" },
+    { "id": "s-037", "skillId": "skill-5", "durationMinutes": 60, "date": "2026-03-19", "notes": "Built a RAG pipeline with LangChain and Pinecone. Chunking strategy makes a huge difference to retrieval quality.", "createdAt": "2026-03-19T21:00:00Z" },
+    { "id": "s-038", "skillId": "skill-5", "durationMinutes": 45, "date": "2026-03-16", "notes": "Prompt engineering patterns — chain-of-thought, few-shot, and system prompts. Tested with the Claude API.", "createdAt": "2026-03-16T20:00:00Z" },
+    { "id": "s-039", "skillId": "skill-5", "durationMinutes": 90, "date": "2026-03-12", "notes": "Built a multi-agent system with tool use. Agents calling APIs and making decisions — this is the future of backends.", "createdAt": "2026-03-12T20:00:00Z" },
+    { "id": "s-040", "skillId": "skill-5", "durationMinutes": 30, "date": "2026-03-07", "notes": null, "createdAt": "2026-03-07T19:00:00Z" },
+    { "id": "s-041", "skillId": "skill-5", "durationMinutes": 60, "date": "2026-03-01", "notes": "Explored vector embeddings and similarity search. Built a semantic search prototype for my bookmarks.", "createdAt": "2026-03-01T20:00:00Z" },
+    { "id": "s-042", "skillId": "skill-5", "durationMinutes": 45, "date": "2026-02-24", "notes": "Fine-tuning vs RAG comparison for a Q&A use case. RAG won for freshness, fine-tuning for consistency.", "createdAt": "2026-02-24T19:00:00Z" },
+    { "id": "s-043", "skillId": "skill-6", "durationMinutes": 30, "date": "2026-03-19", "notes": "Studied Stripe's dashboard — their spacing system is incredibly consistent. Recreated the card layout in Figma.", "createdAt": "2026-03-19T17:00:00Z" },
+    { "id": "s-044", "skillId": "skill-6", "durationMinutes": 25, "date": "2026-03-18", "notes": "Typography pairing practice. Tested 5 serif + sans combos for a side project landing page.", "createdAt": "2026-03-18T17:30:00Z" },
+    { "id": "s-045", "skillId": "skill-6", "durationMinutes": 40, "date": "2026-03-15", "notes": null, "createdAt": "2026-03-15T16:00:00Z" },
+    { "id": "s-046", "skillId": "skill-6", "durationMinutes": 20, "date": "2026-03-12", "notes": "Color theory basics — learned about the 60-30-10 rule. Applied it to a landing page mockup.", "createdAt": "2026-03-12T17:00:00Z" },
+    { "id": "s-047", "skillId": "skill-6", "durationMinutes": 35, "date": "2026-03-08", "notes": "Redesigned a settings page from a personal project. Focused on visual hierarchy and grouping related controls.", "createdAt": "2026-03-08T16:30:00Z" }
+  ]
+}
