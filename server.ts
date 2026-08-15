@@ -408,6 +408,65 @@ app.post('/api/sessions', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// Update practice session
+app.put('/api/sessions/:id', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const id = String(req.params.id);
+    const { skillId, durationMinutes, date, notes } = req.body;
+    const db = await getDb();
+    const userId = req.user!.id;
+
+    const session = await db.get<SessionRow>('SELECT * FROM sessions WHERE id = ? AND user_id = ?', [
+      id,
+      userId,
+    ]);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    // Validate skill ownership when changing skill
+    const newSkillId = skillId ?? session.skill_id;
+    const skill = await db.get<SkillRow>('SELECT id FROM skills WHERE id = ? AND user_id = ?', [
+      newSkillId,
+      userId,
+    ]);
+    if (!skill) {
+      return res.status(400).json({ error: 'Selected skill does not exist or belong to this user' });
+    }
+
+    const now = new Date().toISOString();
+    await db.run(
+      `UPDATE sessions SET skill_id = ?, duration_minutes = ?, date = ?, notes = ?, updated_at = ? WHERE id = ? AND user_id = ?`,
+      [
+        newSkillId,
+        durationMinutes !== undefined ? Number(durationMinutes) : session.duration_minutes,
+        date ?? session.date,
+        notes !== undefined ? notes : session.notes,
+        now,
+        id,
+        userId,
+      ],
+    );
+
+    res.json({
+      session: {
+        id,
+        skillId: newSkillId,
+        durationMinutes:
+          durationMinutes !== undefined ? Number(durationMinutes) : session.duration_minutes,
+        date: date ?? session.date,
+        notes: notes !== undefined ? notes : session.notes,
+        createdAt: session.created_at,
+        updatedAt: now,
+        userId,
+      },
+    });
+  } catch (error) {
+    console.error('Update session error:', error);
+    res.status(500).json({ error: 'Failed to update session' });
+  }
+});
+
 // Delete practice session
 app.delete('/api/sessions/:id', requireAuth, async (req: AuthRequest, res) => {
   try {

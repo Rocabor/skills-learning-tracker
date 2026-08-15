@@ -14,6 +14,7 @@ import {
   apiDeleteSkill,
   apiGetSessions,
   apiCreateSession,
+  apiUpdateSession,
   apiDeleteSession,
   apiGetInsights,
   setAuthToken,
@@ -47,6 +48,7 @@ interface AppContextType {
 
   // CRUD Sessions
   addSession: (sessionData: Omit<Session, 'id' | 'createdAt'>) => Promise<Session>;
+  updateSession: (id: string, updates: Omit<Partial<Session>, 'id' | 'createdAt'>) => Promise<void>;
   deleteSession: (id: string) => Promise<void>;
 
   // Auth & Modes
@@ -64,6 +66,8 @@ interface AppContextType {
   setIsLogModalOpen: (open: boolean) => void;
   logModalDefaultSkillId: string | null;
   openLogModalWithSkill: (skillId?: string) => void;
+  editingSession: Session | null;
+  openEditSessionModal: (session: Session) => void;
   isSkillModalOpen: boolean;
   setIsSkillModalOpen: (open: boolean) => void;
   editingSkill: Skill | null;
@@ -203,6 +207,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [logModalDefaultSkillId, setLogModalDefaultSkillId] = useState<string | null>(null);
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareCardData, setShareCardData] = useState<ShareCardData | null>(null);
 
@@ -454,6 +459,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return createdSession;
   };
 
+  const updateSession = async (
+    id: string,
+    updates: Omit<Partial<Session>, 'id' | 'createdAt'>,
+  ) => {
+    if (user && !user.isGuest) {
+      try {
+        const updated = await apiUpdateSession(id, updates);
+        setSessions((prev) => prev.map((sess) => (sess.id === id ? updated : sess)));
+        showToast('Session updated successfully!');
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Error updating session';
+        showToast(`Error updating session: ${message}`);
+      }
+    } else {
+      const updatedAt = new Date().toISOString();
+      setSessions((prev) =>
+        prev.map((sess) => (sess.id === id ? { ...sess, ...updates, updatedAt } : sess)),
+      );
+      showToast('Session updated');
+    }
+  };
+
   const deleteSession = async (id: string) => {
     if (user && !user.isGuest) {
       try {
@@ -615,6 +642,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLogModalOpen(true);
   };
 
+  const openEditSessionModal = (session: Session) => {
+    setEditingSession(session);
+    setIsLogModalOpen(true);
+  };
+
   const openEditSkillModal = (skill: Skill) => {
     setEditingSkill(skill);
     setIsSkillModalOpen(true);
@@ -634,6 +666,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLogModalOpen(false);
     setIsSkillModalOpen(false);
     setEditingSkill(null);
+    setEditingSession(null);
     setIsShareModalOpen(false);
   };
 
@@ -658,6 +691,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     updateSkill,
     deleteSkill,
     addSession,
+    updateSession,
     deleteSession,
     login,
     signup,
@@ -671,6 +705,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLogModalOpen,
     logModalDefaultSkillId,
     openLogModalWithSkill,
+    editingSession,
+    openEditSessionModal,
     isSkillModalOpen,
     setIsSkillModalOpen,
     editingSkill,

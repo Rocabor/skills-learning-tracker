@@ -7,9 +7,11 @@ export const LogSessionModal: React.FC = () => {
   const {
     isLogModalOpen,
     logModalDefaultSkillId,
+    editingSession,
     skills,
     sessions,
     addSession,
+    updateSession,
     closeModals
   } = useApp();
 
@@ -25,23 +27,30 @@ export const LogSessionModal: React.FC = () => {
   useEffect(() => {
     if (!isLogModalOpen) return;
 
-    // Find most recent practiced skill or default
-    if (logModalDefaultSkillId) {
-      setSkillId(logModalDefaultSkillId);
-    } else if (sessions.length > 0) {
-      setSkillId(sessions[0].skillId);
-    } else if (skills.length > 0) {
-      setSkillId(skills[0].id);
+    if (editingSession) {
+      setSkillId(editingSession.skillId);
+      setDurationInput(String(editingSession.durationMinutes));
+      setDate(editingSession.date);
+      setNotes(editingSession.notes || '');
+    } else {
+      // Find most recent practiced skill or default
+      if (logModalDefaultSkillId) {
+        setSkillId(logModalDefaultSkillId);
+      } else if (sessions.length > 0) {
+        setSkillId(sessions[0].skillId);
+      } else if (skills.length > 0) {
+        setSkillId(skills[0].id);
+      }
+      setDurationInput('45');
+      setDate(getTodayDateString());
+      setNotes('');
     }
-    setDurationInput('45');
-    setDate(getTodayDateString());
-    setNotes('');
     setError(null);
 
     setTimeout(() => {
       durationInputRef.current?.focus();
     }, 100);
-  }, [isLogModalOpen, logModalDefaultSkillId, skills, sessions]);
+  }, [isLogModalOpen, editingSession, logModalDefaultSkillId, skills, sessions]);
 
   if (!isLogModalOpen) return null;
 
@@ -59,8 +68,8 @@ export const LogSessionModal: React.FC = () => {
       return;
     }
 
-    if (parsedMins > 600) {
-      // Warning for > 10 hours
+    if (parsedMins > 480) {
+      // Warning for > 8 hours
       if (!window.confirm(`You entered ${parsedMins} minutes (${(parsedMins / 60).toFixed(1)} hours). Are you sure?`)) {
         return;
       }
@@ -77,12 +86,21 @@ export const LogSessionModal: React.FC = () => {
       return;
     }
 
-    addSession({
-      skillId,
-      durationMinutes: parsedMins,
-      date,
-      notes: notes.trim() || null
-    });
+    if (editingSession) {
+      updateSession(editingSession.id, {
+        skillId,
+        durationMinutes: parsedMins,
+        date,
+        notes: notes.trim() || null
+      });
+    } else {
+      addSession({
+        skillId,
+        durationMinutes: parsedMins,
+        date,
+        notes: notes.trim() || null
+      });
+    }
 
     closeModals();
   };
@@ -114,7 +132,7 @@ export const LogSessionModal: React.FC = () => {
               style={{ backgroundColor: selectedSkill?.color || '#059669' }}
             />
             <h2 id="log-session-title" className="font-display font-bold text-xl text-[#1A1D1A] dark:text-[#ECF0EC]">
-              Log Practice Session
+              {editingSession ? 'Edit Practice Session' : 'Log Practice Session'}
             </h2>
           </div>
           <button
@@ -244,7 +262,7 @@ export const LogSessionModal: React.FC = () => {
               type="submit"
               className="px-5 py-2 text-sm font-medium rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer"
             >
-              Save Session
+              {editingSession ? 'Save Changes' : 'Save Session'}
             </button>
           </div>
         </form>

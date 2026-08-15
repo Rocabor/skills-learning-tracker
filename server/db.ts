@@ -105,7 +105,8 @@ export async function getDb(): Promise<SqlDatabase> {
       date TEXT NOT NULL,
       notes TEXT,
       tags TEXT,
-      created_at TEXT NOT NULL
+      created_at TEXT NOT NULL,
+      updated_at TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
@@ -115,6 +116,20 @@ export async function getDb(): Promise<SqlDatabase> {
     CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(date);
   `);
   persist();
+
+  // Migrate older databases: add updated_at to sessions if missing
+  const sessionsColStmt = rawDb.prepare('PRAGMA table_info(sessions)');
+  let hasUpdatedAt = false;
+  while (sessionsColStmt.step()) {
+    const col = sessionsColStmt.getAsObject();
+    if (col.name === 'updated_at') hasUpdatedAt = true;
+  }
+  sessionsColStmt.free();
+  if (!hasUpdatedAt) {
+    rawDb.run('ALTER TABLE sessions ADD COLUMN updated_at TEXT');
+    rawDb.run("UPDATE sessions SET updated_at = created_at WHERE updated_at IS NULL");
+    persist();
+  }
 
   // Helper mapping
   dbInstance = {

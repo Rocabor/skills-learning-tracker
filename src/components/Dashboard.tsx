@@ -11,6 +11,7 @@ import {
   Sparkles,
   BookOpen,
   Trash2,
+  Edit2,
   RefreshCw,
   ChevronRight
 } from 'lucide-react';
@@ -24,6 +25,7 @@ export const Dashboard: React.FC = () => {
     overallStats,
     openLogModalWithSkill,
     openAddSkillModal,
+    openEditSessionModal,
     deleteSession,
     setSelectedSkillId,
     startTimer,
@@ -383,6 +385,13 @@ export const Dashboard: React.FC = () => {
                       </div>
 
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => openEditSessionModal(session)}
+                          className="p-1 rounded text-[#7A837A] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] cursor-pointer"
+                          title="Edit Session"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </button>
                         <button
                           onClick={() => {
                             if (window.confirm('Delete session?')) {

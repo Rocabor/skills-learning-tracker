@@ -12,6 +12,7 @@ import {
   Clock,
   Search,
   Trash2,
+  Edit2,
   Share2,
 } from 'lucide-react';
 
@@ -27,6 +28,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
     skillStatsMap,
     openLogModalWithSkill,
     openEditSkillModal,
+    openEditSessionModal,
     openShareModal,
     deleteSession,
     startTimer,
@@ -347,8 +349,15 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                     )}
                   </div>
 
-                  {/* Delete action */}
+                  {/* Edit / Delete actions */}
                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => openEditSessionModal(session)}
+                      className="p-1.5 rounded-lg text-[#7A837A] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] transition-colors cursor-pointer"
+                      title="Edit Session"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={() => {
                         if (window.confirm('Delete this practice session?')) {

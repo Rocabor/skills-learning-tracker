@@ -182,6 +182,25 @@ export async function apiCreateSession(
   return data.session;
 }
 
+export async function apiUpdateSession(
+  id: string,
+  updates: Omit<Partial<Session>, 'id' | 'createdAt'>,
+): Promise<Session> {
+  const res = await fetch(`/api/sessions/${id}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(updates),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to update session in database');
+  }
+
+  const data = await res.json();
+  return data.session;
+}
+
 export async function apiDeleteSession(id: string): Promise<void> {
   const res = await fetch(`/api/sessions/${id}`, {
     method: 'DELETE',
