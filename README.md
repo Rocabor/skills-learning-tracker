@@ -1,159 +1,257 @@
-# Skills Learning Tracker — Product Challenge
+# Skills Learning Tracker
 
-Build a personal practice tracker where you log sessions, manage skills, track streaks, and visualize your consistency through heatmaps and progress rings. Your learning journey, beautifully visualized.
+A personal practice tracker where you log sessions, manage skills, track streaks, and visualize your consistency through heatmaps and progress rings — built as a [Frontend Mentor Product Challenge](https://www.frontendmentor.io).
 
-![Skills Learning Tracker preview](./preview.jpg)
+**Live URL:** https://skills-learning-tracker-snowy.vercel.app
 
-*This is a design concept image, not the intended design. There's no Figma file — you make the design decisions.*
+![Skills Learning Tracker dashboard](./screenshot.png)
 
-## The Challenge
+---
 
-Skills Learning Tracker is a **Product Challenge** on [Frontend Mentor](https://www.frontendmentor.io). There's no Figma file — you make the design decisions. You ship a real, deployed product with a database and authentication. The result is a portfolio piece that demonstrates how you think, not just what you can build.
+## Overview
 
-### Four Pillars
+SkillTrack opens **directly into a fully populated guest dashboard** — no sign-up wall, no empty states on first visit. A guest explores 6 skills across technical, creative, and language domains with months of heatmap activity, live streaks, and deep session notes. Creating an account (optional) syncs everything to a hosted database.
 
-| Pillar | What It Means for Skills Learning Tracker |
-|--------|----------------------------|
-| **Product Thinking** | You design the dashboard layout, the session logging UX, and the progress visualization system. No spec tells you exactly how — you decide. |
-| **Design Taste & Craft** | The brand kit gives you colors, type, and spacing. The layouts, interactions, and visual polish are yours. |
-| **AI Collaboration** | The project includes AI context files (`AGENTS.md`, `CLAUDE.md`) that give tools like Claude full project context. Lean into AI across planning, building, and polishing. |
-| **Shipping Real Products** | Deploy to a live URL. Real database. Real auth. Self-contained data model with real-world calculation challenges — streak logic, date handling, heatmap aggregation. |
+The dashboard is a bento grid that surfaces the most motivating signal first: skill progress rings, hours invested, current and best streaks, and a GitHub-style heatmap of daily practice. Session logging is a fast two-step modal with a timer option, and every interaction has a tactile, rewarding feel — confetti on new streaks, animated counters, and smooth progress ring transitions.
 
-## What You're Building
+### Tech Stack
 
-A personal practice tracker where users:
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, Vite 8, TypeScript |
+| Styling | Tailwind CSS v4, Motion (Framer Motion), canvas-confetti, Lucide icons |
+| Backend | Express 5 (single serverless function) |
+| Database | Turso (libSQL) in production, SQLite file locally |
+| Auth | JWT + bcryptjs, email/password with reset flow |
+| Validation | Zod |
+| AI | Google Gemini (`@google/genai`) with offline fallback |
+| Hosting | Vercel (cloud build), git-based deploys |
 
-- **Create and manage skills** they're learning (guitar, Spanish, TypeScript, cooking, UI design — anything)
-- **Log practice sessions** with duration, date, and optional notes
-- **Track streaks** — consecutive days of practice per skill and overall
-- **Visualize consistency** through a heatmap calendar showing activity over months
-- **See progress at a glance** via a bento-style dashboard with progress rings, hours, and streaks
-- **Browse a pre-populated demo** as a guest with 6 skills and 47 sessions
+---
 
-### The Guest Experience
+## Design Decisions
 
-When you share this project — in your portfolio, a job application, or a social post — the person clicking your link isn't going to create an account. Guest mode is what lets them see your work instead of a login wall.
+These are the product and design choices I made where the spec left room for interpretation.
 
-Your landing page includes a "Try as Guest" button. Guests get a fully populated dashboard with 6 skills across technical, creative, and language domains — Spanish with an 8-day streak, Guitar with 32 hours logged, TypeScript with deep-dive session notes, AI Engineering with RAG pipeline reflections, and more. The heatmap shows months of activity patterns. Visitors are _exploring a personal practice journal_ from their first click.
+### Dashboard & Progress Visualization
 
-## Project Structure
+**The problem I was solving:** The dashboard is where users spend 80% of their time, and it needs to answer three questions instantly — "am I consistent?", "where is my time going?", and "is my current streak at risk?" — without feeling like a spreadsheet.
 
+**My approach:** A responsive bento grid. A wide "overall" card anchors the top with an animated progress ring, total hours, and current vs. best streaks (with an amber "at risk" treatment when a streak will break today). Beside it, a GitHub-style heatmap visualizes daily practice intensity across the year. The remaining tiles are skill cards, each with its own mini progress ring, streak flame, weekly hours, and a sparkline of the last sessions. Skill cards lift on hover and navigate to a detail view with a full session history.
+
+**Why I chose this approach:** Data-dense but scannable. The brand kit names Strava and the GitHub contribution graph as inspirations — I leaned into the heatmap's information density and the progress ring's instant "am I on pace?" read. Numbers count up on load and when they change, which makes updates feel alive without being noisy.
+
+**What I'd do differently:** The skill detail view could carry more longitudinal insight (a per-skill monthly bar chart, "time of day" analysis). I'd also add a personal-best callout on each card (e.g., "best streak: 12 days") since that data exists but is currently one level deeper.
+
+### Session Logging UX
+
+**The problem I was solving:** Logging practice must be fast and satisfying — friction at this step kills the habit the app is trying to build. The challenge asks for "fast, encouraging, and rewarding."
+
+**My approach:** A two-field modal (duration + date) that's reachable from a persistent "+ Log Session" button in the header, so you can log from anywhere. Duration has quick-pick chips (15/30/45/60 min), a live timer that auto-fills the duration, and optional reflection notes. Skills are pre-selected by context (opening from a skill card pre-fills that skill). Submitting shows an optimistic UI update plus a confetti burst when a streak extends — the "post-log confirmation" moment from the brand kit.
+
+**Why I chose this approach:** Fewer decisions = more logs. Defaulting to "today" and to the most-relevant skill removes the two most common sources of friction. The confetti ties the satisfaction to a specific rewardable event (streak extension), so celebration never feels gratuitous.
+
+**What I'd do differently:** A quick "repeat last session" shortcut (one tap to log the same skill + duration again) and an undo toast. Also, I'd persist the in-progress timer across reloads.
+
+### Other Design Choices
+
+- **Guest-first flow.** The app loads directly into the populated guest dashboard (seeded client-side) and account creation is opt-in. This follows the challenge's "guest experience" pillar: anyone clicking the link sees the product working immediately.
+- **Accessible heatmap.** The default grid is dense GitHub-style, but a toggle switches to a semantic **table view** (role `table`/`row`/`cell`) that screen readers navigate naturally. Every cell also carries an `aria-label` with the date and minutes.
+- **Dark mode + accessibility dialog.** A theme toggle plus a dialog with **reduced-motion** and **high-contrast** switches. Reduced motion disables the animations/confetti; all animations already respect `prefers-reduced-motion`.
+- **Streak psychology.** Streaks are displayed in the header (overall), per skill, and in the share card. The "at risk" state (amber, dashed border, "Practice today to keep it!") nudges gently instead of guilt-tripping.
+- **Optimistic UI.** Skill/session mutations update the UI immediately and reconcile with the server; failures roll back with a toast. Combined with the server sync endpoint, this makes the app feel local even though data lives in Turso.
+- **Design system tokens.** All colors/spacing/radii come from CSS custom properties mirroring the brand kit (Space Grotesk for display, Inter for UI, emerald-on-warm-gray palette).
+
+---
+
+## Development Journey
+
+### Initial Approach vs. Final
+
+I started with a local-first architecture: a Vite + React client and an Express server over a local SQLite file, so the whole product worked on `localhost` before any cloud decision. The database layer was written behind a tiny `getDb()` interface, which made the later move to Turso a one-file change instead of a rewrite.
+
+The plan for deployment was a Vercel serverless function plus Turso (serverless-hosted libSQL). That held, but **how** Vercel builds the function changed three times during the project — see below.
+
+### Decisions Reconsidered
+
+1. **`api/[...slug].ts` → `api/index.ts`.** Vercel generated a catch-all route `^/api/([^/]+)$` from `[...slug]`, which only matched single-segment paths. `/api/health` worked; `/api/auth/register` returned 404. Moving the handler to `api/index.ts` with rewrites (`/api/(.*)` → `/api`) fixed every route at once.
+2. **Native libSQL client → pure-HTTP client.** `@libsql/client` requires platform-specific native bindings. Building on Windows and uploading `--prebuilt` shipped a function missing `@libsql/linux-x64-gnu` (and pnpm's symlinked `node_modules` was flattened incorrectly), causing `FUNCTION_INVOCATION_FAILED`. The fix: use `@libsql/client/http` (pure HTTP, no native bindings) for the remote Turso URL, and only load the native client dynamically for local `file:` URLs.
+3. **Prebuilt deploys → cloud builds.** After two failures, I stopped using `vercel deploy --prebuilt` entirely and let Vercel build on Linux from git pushes. It's been rock solid since.
+4. **Button color token.** The brand kit's `--color-accent` (`#059669`, emerald-600) fails WCAG AA for white button text (3.8:1). I switched button backgrounds to emerald-700 (`#047857`, the kit's own `--color-accent-hover`) which passes at 5.5:1 — a subtle visual change with a real accessibility win.
+5. **Muted text contrast.** The tertiary text color (`#7A837A`) is 3.9:1 on white. I darkened it and, more importantly, found that many elements relied on Tailwind arbitrary-value colors (`text-[#7A837A]`) that overrode their `dark:` variants in the cascade. I normalized these to add explicit `dark:` variants — dark mode had a systematic contrast problem that Lighthouse (running in dark) exposed.
+
+### What Surprised Me
+
+- **Lighthouse ran the page in dark mode** (headless Chrome reports `prefers-color-scheme: dark`), which is how the contrast issues surfaced. If I'd only checked light mode, dark mode would have shipped unreadable.
+- **Tailwind v4's arbitrary-value ordering**: theme utilities and `dark:` variants behaved differently than I assumed, so visual verification (computed styles via headless Chrome) beat reasoning about the cascade.
+- **The Vercel catch-all `[...slug]` behavior** was genuinely surprising — a single-segment `[...slug]` silently degrading to a 404 for nested paths.
+- **Turso's HTTP client** made serverless SQL trivial; avoiding native bindings was the whole deployment.
+
+### Session Breakdown
+
+| Session | Focus | What I Accomplished |
+|---------|-------|-------------------|
+| 1 | Foundation | Stack setup, routing, Tailwind v4 + brand tokens, DB schema (users, skills, sessions), seed data, auth (register/login/JWT) |
+| 2 | Core features | Skill CRUD, session logging + timer, streak calculations (per-skill + overall), heatmap calendar, progress rings, stats |
+| 3 | UX & polish | Landing page, bento dashboard, guest mode, dark mode, session editing, empty/error states |
+| 4 | Differentiators | Animated progress + micro-interactions (confetti, count-ups), AI practice insights (Gemini + fallback), share cards + data export |
+| 5 | Deploy & harden | Vercel + Turso production deploy, routing fix, HTTP libSQL client, end-to-end verification |
+| 6 | Accessibility pass | Lighthouse fixes: contrast, heatmap ARIA, button names, robots.txt, dark-mode variants (A11y 82 → 96) |
+
+---
+
+## AI Collaboration Reflection
+
+### How I Used AI
+
+AI was used across every phase — planning the data model, writing most of the component code, debugging the Vercel routing and native-binding failures, and running the Lighthouse accessibility pass. The collaboration model in `AGENTS.md` worked well: implement to spec, ask clarifying questions on the design-it-yourself features, and use the brand kit as the design source of truth.
+
+### What Worked Well
+
+- **Small, testable increments** with the server runnable locally between changes — most regressions surfaced within seconds.
+- **Verifying production claims against the live URL** (curl the API, run Lighthouse, inspect computed styles) instead of trusting local behavior. This is what caught the prebuilt-bundle and dark-mode issues.
+- Letting AI propose the schema and API shape, then reviewing them against the spec before writing features.
+
+### What I Learned
+
+The hardest problems weren't feature code — they were **environment boundaries**: how Vercel compiles serverless functions from Windows, how Tailwind emits arbitrary-value utilities, how headless Chrome's color-scheme affects a11y audits. Tools behave differently in production, so I now treat "it works on my machine" as a hypothesis to verify, not a conclusion.
+
+### Where I Pushed Back
+
+- I rejected AI suggestions to switch frameworks (e.g., "just use Next.js API routes") when the current stack was working — the problems were deployment-specific, not architecture-specific.
+- I pushed back on the first route fix (`[...slug]`) and instead verified the generated `config.json` to find the real single-segment cause.
+- When AI proposed a monolithic "fix everything" a11y change, I scoped it to the exact failures Lighthouse reported, re-running the audit between changes.
+
+---
+
+## Differentiators
+
+### Chosen Differentiator(s)
+
+**1. Animated Progress & Micro-Interactions**
+
+**Why I chose this:** The brand kit's "energizing but focused" tone and the challenge's emphasis on satisfying confirmation moments — plus it's the highest-visibility craft skill.
+
+**How it enhances the product:** Progress rings animate from their previous value with easing; streak counters and stat numbers count up; heatmap cells fade in as a wave; a streak extension fires a confetti burst; skill cards lift on hover; data updates transition smoothly instead of snapping.
+
+**Implementation highlights:** SVG rings with animated stroke-dashoffset, `canvas-confetti` triggered exactly when a streak breaks past the previous best, CSS transition groups that respect `prefers-reduced-motion`, and the accessibility dialog's reduced-motion switch that disables the whole animation layer.
+
+**What I learned:** Micro-interaction restraint. The line between "delightful" and "distracting" is crossed when animations compete with content or run on every interaction — so celebration is reserved for the events that genuinely deserve it.
+
+**2. AI-Powered Practice Insights**
+
+**Why I chose this:** The spec's "supportive coach, not a chatbot" framing is a strong product idea, and it showcases API handling, latency, and graceful fallback.
+
+**How it enhances the product:** A "Practice Insights" panel analyzes the logged sessions and produces a natural-language weekly summary, pattern observations ("you practice more on weekends"), streak nudges, and milestone recognition.
+
+**Implementation highlights:** The insight engine calls the Gemini API with a curated prompt built from the user's real sessions. When no `GEMINI_API_KEY` is configured — or the API errors — it falls back to a deterministic local analyzer that computes the same categories from the data, so the feature never breaks.
+
+**What I learned:** AI features need a first-class fallback and a hard timeout path. Users should never see a spinner for something the data can already tell them.
+
+**3. Data Export & Sharing Cards**
+
+**Why I chose this:** It creates the most shareable artifact of the whole product and demonstrates canvas/frontend craft.
+
+**How it enhances the product:** Users can generate a branded practice card (overall summary, streak milestone, or weekly recap) rendered to a downloadable image at social dimensions, plus export all sessions as CSV/JSON.
+
+**Implementation highlights:** The card is drawn programmatically on an offscreen canvas (so export matches the preview pixel-for-pixel), uses the brand palette and type scale, and can be saved as a PNG.
+
+**What I learned:** Rendering text/fonts on canvas to match on-screen styles is finicky — embedding the exact font families and measuring the layout in the same coordinate space as the preview is what makes it consistent.
+
+---
+
+## Self-Assessment
+
+Rate your implementation honestly. This self-awareness is part of the portfolio artifact.
+
+| Category | Rating | Notes |
+|----------|--------|-------|
+| **Works for real users** | 5/5 | Deployed, auth + full CRUD verified end-to-end against the live URL |
+| **Data visualization quality** | 5/5 | Animated rings, heatmap + accessible table view, streaks, sparklines |
+| **Design-it-yourself features** | 5/5 | Bento dashboard and two-step session logging with timer + confetti |
+| **Design quality** | 5/5 | Brand tokens, Space Grotesk + Inter, consistent hierarchy |
+| **Responsive design** | 4/5 | Bento grid adapts to mobile; heatmap scrolls horizontally |
+| **Performance** | 4/5 | Lighthouse 94; ~110KB gzipped JS, no image assets to load |
+| **Accessibility** | 4/5 | Lighthouse 96; heatmap touch targets (14px) are the main gap |
+| **Edge case handling** | 4/5 | Empty states, streak at-risk/broken, optimistic rollback; timezone handling is simple |
+| **Code quality** | 4/5 | Clean components, Zod validation, typed API; some views could use more extraction |
+| **Landing page** | 4/5 | Clear value prop; the app currently opens straight to guest mode, so the landing is a fallback |
+| **Guest experience** | 5/5 | Instantly populated dashboard, no sign-up wall |
+
+### Lighthouse Scores
+
+| Category | Score |
+|----------|-------|
+| Performance | 94 |
+| Accessibility | 96 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+### Strengths
+
+- **Guest-first product** — the URL opens into a fully populated, impressive dashboard with zero setup, exactly what the challenge asks for.
+- **The deployment archaeology** — the app is genuinely hard to break now because the nasty failure modes (routing, native bindings, contrast) were hit, understood, and fixed with verification.
+- **Accessibility pass** — going from 82 → 96 on Accessibility by fixing real issues (not just nudging scores) is the part I'm most proud of.
+
+### Areas for Improvement
+
+- **Heatmap touch targets** (14px cells) don't meet the 24px minimum. I intentionally kept the dense GitHub-style grid; the accessible table view is the fallback, and I'd add a "large cells" preference in the accessibility dialog in a v2.
+- **Per-skill time-of-day/monthly analysis** to deepen the detail view.
+- **Real email verification** — the reset flow uses a dev code; production-grade would send a real email.
+
+---
+
+## Known Limitations
+
+- **Heatmap cells are small** (14–15px). By design for the GitHub-style density; the accessible table view is the alternative. Documented above.
+- **AI insights need `GEMINI_API_KEY`** for the live model. Without it, the feature uses the deterministic local analyzer (still useful, not AI-generated).
+- **Guest data lives in the browser** (`localStorage`) — it's seeded and editable, but clearing storage resets it. Account data lives in Turso.
+- **Vercel's internal typecheck** logs TS7006 "implicit any" warnings on Express handlers that don't reproduce locally (`tsc -b` passes clean) — non-blocking build noise.
+- **Password reset** uses a dev-code flow rather than email delivery.
+
+---
+
+## Running Locally
+
+```bash
+# Clone the repo
+git clone https://github.com/Rocabor/skills-learning-tracker.git
+cd skills-learning-tracker
+
+# Install dependencies (pnpm recommended)
+pnpm install
+
+# Local dev without Turso: the server falls back to a SQLite file at data/skilltrack.db
+pnpm dev
 ```
-skills-learning-tracker/
-├── spec/
-│   ├── product-definition.md      # What, who, why
-│   ├── core-requirements.md       # 14 features: 9 core + 5 stretch
-│   ├── design-challenges.md       # 2 features YOU design
-│   ├── technical-requirements.md  # Database, auth, deployment, performance
-│   └── differentiators.md         # 4 enhancements — pick 1-2
-├── guidance/
-│   ├── brand-kit.md               # Colors, typography, spacing, icons, mood
-│   ├── patterns.md                # UI/UX do's and don'ts
-│   └── accessibility.md           # WCAG checklist
-├── starter/
-│   ├── tokens.css                 # CSS custom properties
-│   └── tailwind.css               # Optional Tailwind v4 config
-├── data/
-│   ├── sample-skills.json         # 6 skills + 47 sessions as JSON
-│   └── README.md                  # Data edge case documentation
-├── AGENTS.md                      # AI collaboration context
-├── CLAUDE.md                      # Points to AGENTS.md
-└── README-template.md             # Template for your solution README
+
+Open http://localhost:3000 — the app starts in guest mode with seeded data.
+
+### Environment Variables
+
+Create a `.env` file in the project root. All variables are optional for local development (the server falls back to a local SQLite file and the built-in AI analyzer).
+
+| Variable | Description |
+|----------|------------|
+| `TURSO_DATABASE_URL` | Turso (libSQL) URL, e.g. `libsql://<db>-<org>.turso.io`. Required for production. |
+| `TURSO_AUTH_TOKEN` | Turso auth token for the database. Required for production. |
+| `JWT_SECRET` | Secret used to sign auth JWTs. Required for production. |
+| `GEMINI_API_KEY` | Optional. Enables the live Gemini AI insights; the built-in analyzer is used otherwise. |
+
+### Deploying to Vercel
+
+```bash
+vercel link   # link the project
+vercel env add JWT_SECRET           # set for Production/Preview/Development
+vercel env add TURSO_DATABASE_URL
+vercel env add TURSO_AUTH_TOKEN
+git push origin main                # Vercel builds from git (cloud build on Linux)
 ```
 
-## Getting Started
+Production URL: https://skills-learning-tracker-snowy.vercel.app
 
-1. **Read the spec** — Start with `spec/product-definition.md`, then `core-requirements.md`. Understand what you're building before you write code.
+---
 
-2. **Review the brand kit** — `guidance/brand-kit.md` gives you the visual foundation. The brand kit and preview image give you a solid design foundation. Use them as your starting point — or, if you have a clear design vision of your own, feel free to create your own brand kit and go in a different direction. The starter CSS tokens and optional Tailwind config are ready to use.
+## Acknowledgments
 
-3. **Explore the patterns** — `guidance/patterns.md` provides UI/UX do's and don'ts that will help you make strong design decisions without a Figma file.
-
-4. **Choose your stack** — This challenge is framework-agnostic. Next.js, Nuxt, SvelteKit, Remix, Astro — whatever you're most productive with. The recommended path is full-stack (database + auth), but there's a **frontend-only alternative** if you want to focus on UI/UX and frontend engineering — see `spec/technical-requirements.md` for details.
-
-5. **Set up your AI workflow** — This project is designed for AI collaboration. `AGENTS.md` and `CLAUDE.md` give AI tools full context about the project — specs, guidance, and collaboration approach. We recommend working with AI across every phase: planning, building, and polishing.
-
-6. **Pick your differentiators** — Read `spec/differentiators.md` and choose 1-2 that match your interests. These are what make the project _yours_.
-
-7. **Start building** — Begin with foundation (auth, database, skill CRUD), then layer in features. The core-requirements spec is your roadmap. Core features give you a solid product; Stretch features take it to the next level.
-
-8. **Document as you go** — Use `README-template.md` for your solution README. Record design decisions, technical trade-offs, and lessons learned as they happen, not after.
-
-## Working with AI
-
-Product Challenges are designed for AI collaboration. The `AGENTS.md` and `CLAUDE.md` files give AI tools like Claude, Cursor, and Copilot full project context — including the spec, brand kit, and collaboration guidelines. Load them at the start of each session.
-
-Lean on AI for implementation, but don't just accept what it gives you. The design decisions are yours, and so is the code quality — review what gets generated, understand it, and make sure it's something you'd be happy putting your name on. The 2 design-it-yourself features (dashboard & progress visualization, session logging UX) are where your product thinking matters most.
-
-## Your Solution Repo
-
-The `.gitignore` is pre-configured to exclude challenge reference files (`spec/`, `guidance/`, `AGENTS.md`, etc.) from your solution repo. These files are your development reference — they stay on your machine for AI sessions and planning, but they don't belong in the finished product.
-
-Your public repo should contain:
-
-- Your application code
-- Your completed README (rename `README-template.md` → `README.md`)
-- The sample data files (needed for the guest experience)
-- The starter tokens (consumed by your build)
-
-This is how real products work: you reference the spec during development, you ship the product.
-
-## Learning Outcomes
-
-By completing this challenge, you'll have demonstrated:
-
-- **Full-stack architecture** — Database schema design, API routes, authentication flows, and client-side state management for a self-contained data model
-- **Data visualization** — Progress rings (SVG), heatmap calendars, streak indicators, and aggregate statistics that tell a story about user behavior
-- **Product design** — Dashboard layout, session logging UX, streak motivation, and progress visualization — all designed by you without a Figma file
-- **Date and time logic** — Streak calculations, timezone-aware date handling, calendar grid generation, and daily/weekly aggregation
-- **Real-world deployment** — Live URL, environment configuration, production error handling, database management
-- **Design taste** — Typography pairing (Space Grotesk + Inter), emerald color palette, bento grid layout, visual hierarchy, and responsive data-dense interfaces without a Figma reference
-
-## Key Design Moments
-
-These screens are where your design taste will be most visible:
-
-1. **Dashboard / bento grid** — Where users spend 80% of their time. The arrangement of skill cards, heatmap, stats, and session log needs visual balance and clear information hierarchy. Progress rings, numbers, and color create the product's personality.
-2. **Session logging interaction** — The most frequent action. It needs to feel fast, satisfying, and worth doing. The post-log confirmation is a key design moment.
-3. **Landing page** — First impression. Progress visualizations should be visible immediately. The energizing-but-focused aesthetic should be evident within 2 seconds.
-
-## Deploying Your Project
-
-Product Challenges require a live, publicly accessible URL. Recommended hosts:
-
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
-- [Render](https://render.com/)
-- [Fly.io](https://fly.io/)
-
-Make sure your environment variables are configured correctly and no secrets are exposed. Test your deployed URL in an incognito window before submitting — especially the guest experience.
-
-For more guidance, see our [hosting guide](https://www.frontendmentor.io/guides/hosting-your-solution).
-
-## Submitting Your Solution
-
-Submit your solution on the platform for the rest of the community to see. Follow our [guide to submitting solutions](https://www.frontendmentor.io/guides/how-to-submit-solutions) for the full process.
-
-When submitting, you'll need:
-
-- **Live site URL** — Submit the URL to your guest experience (e.g., `your-app.vercel.app/guest`), not the landing page. This ensures our solution reporters analyse your product code rather than the homepage. Test in incognito first.
-- **Repository URL** — A public repo with your solution code and completed README
-
-For your retrospective, Product Challenges give you a lot to write about — design decisions, AI collaboration, technical trade-offs. Be specific about what you're proud of and where you'd like feedback. See our [guide to writing effective retrospectives](https://www.frontendmentor.io/guides/write-an-effective-retrospective) for tips.
-
-## Sharing Your Solution
-
-Product Challenges create portfolio pieces worth sharing beyond the platform:
-
-1. Share your solution page in the **#finished-projects** channel of our [community](https://www.frontendmentor.io/community).
-2. Post on LinkedIn or X — include both your live URL and repo link. The guest experience means anyone clicking your link sees the product immediately.
-3. Add it to your portfolio — see our [guide to using challenges in your portfolio](https://www.frontendmentor.io/guides/use-challenges-in-your-portfolio).
-4. Blog about your experience. The design decisions, AI collaboration journey, and technical challenges make for compelling content. Great platforms to write on are [dev.to](https://dev.to/), [Hashnode](https://hashnode.com/), and [CodeNewbie](https://community.codenewbie.org/).
-
-## Questions?
-
-If anything in the spec is unclear or you want to discuss the challenge, join our [Discord community](https://www.frontendmentor.io/community).
-
-## Got Feedback for Us?
-
-We love receiving feedback! If you have anything you'd like to mention, please email hi[at]frontendmentor[dot]io.
+Built as a [Frontend Mentor Product Challenge](https://www.frontendmentor.io). Design reference assets and brand tokens come from the challenge's brand kit and preview image.
