@@ -24,7 +24,8 @@ const MainAppContent: React.FC = () => {
     closeModals,
     isLogModalOpen,
     isSkillModalOpen,
-    isShareModalOpen
+    isShareModalOpen,
+    highContrast
   } = useApp();
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -97,7 +98,11 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAF8] dark:bg-[#131614] text-[#1A1D1A] dark:text-[#ECF0EC] transition-colors duration-200">
+    <div
+      className={`min-h-screen flex flex-col bg-[#FAFAF8] dark:bg-[#131614] text-[#1A1D1A] dark:text-[#ECF0EC] transition-colors duration-200 ${
+        highContrast ? 'high-contrast' : ''
+      }`}
+    >
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">

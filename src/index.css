@@ -94,3 +94,34 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* High contrast mode: strengthen neutral borders across cards and dividers */
+@layer utilities {
+  .high-contrast [class*="border-[#DDDDD6]"],
+  .high-contrast [class*="border-[#E5E5DE]"],
+  .high-contrast [class*="border-[#E8E8E2]"] {
+    border-color: #8B968B;
+  }
+  .dark .high-contrast [class*="border-[#DDDDD6]"],
+  .dark .high-contrast [class*="border-[#E5E5DE]"],
+  .dark .high-contrast [class*="border-[#E8E8E2]"] {
+    border-color: #6B766B;
+  }
+}
+
+/* High contrast mode: make empty heatmap cells clearly visible */
+.high-contrast [class*="bg-[#EAEDE8]"] {
+  background-color: #D8DCD8;
+}
+.dark .high-contrast [class*="bg-[#1E231E]"] {
+  background-color: #333A33;
+}
+
+/* High contrast mode: stronger focus outline */
+.high-contrast :focus-visible {
+  outline-width: 3px;
+  outline-color: #047857;
+}
+.dark .high-contrast :focus-visible {
+  outline-color: #34D399;
+}

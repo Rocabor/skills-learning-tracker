@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { X, Eye, Zap, Keyboard } from 'lucide-react';
+import { Switch } from './Switch';
 
 interface AccessibilityDialogProps {
   isOpen: boolean;
@@ -53,20 +54,11 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setReducedMotion(!reducedMotion)}
-              className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                reducedMotion ? 'bg-emerald-700' : 'bg-[#DDDDD6] dark:bg-[#333A33]'
-              }`}
-              role="switch"
-              aria-checked={reducedMotion}
-            >
-              <div
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                  reducedMotion ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </button>
+            <Switch
+              checked={reducedMotion}
+              onChange={setReducedMotion}
+              label="Reduce motion"
+            />
           </div>
 
           {/* High Contrast Mode Toggle */}
@@ -82,20 +74,11 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setHighContrast(!highContrast)}
-              className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                highContrast ? 'bg-emerald-700' : 'bg-[#DDDDD6] dark:bg-[#333A33]'
-              }`}
-              role="switch"
-              aria-checked={highContrast}
-            >
-              <div
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                  highContrast ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </button>
+            <Switch
+              checked={highContrast}
+              onChange={setHighContrast}
+              label="High contrast borders"
+            />
           </div>
 
           {/* Keyboard Shortcuts Reference */}

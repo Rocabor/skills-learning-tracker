@@ -148,6 +148,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return localStorage.getItem(`${STORAGE_KEY_PREFIX}high_contrast`) === 'true';
   });
 
+  const setReducedMotionPref = (val: boolean) => {
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}reduced_motion`, String(val));
+    setReducedMotion(val);
+  };
+
+  const setHighContrastPref = (val: boolean) => {
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}high_contrast`, String(val));
+    setHighContrast(val);
+  };
+
   // User state (defaults to Guest)
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}user`);
@@ -713,9 +723,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     theme,
     toggleTheme,
     reducedMotion,
-    setReducedMotion,
+    setReducedMotion: setReducedMotionPref,
     highContrast,
-    setHighContrast,
+    setHighContrast: setHighContrastPref,
     activeTimer,
     startTimer,
     pauseTimer,
