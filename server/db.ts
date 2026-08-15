@@ -1,4 +1,3 @@
-import { createClient } from '@libsql/client';
 import path from 'path';
 import fs from 'fs';
 
@@ -35,7 +34,12 @@ export async function getDb(): Promise<SqlDatabase> {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
   }
 
-  const client = createClient({ url, authToken: tursoToken });
+  // Remote (Turso) uses the pure-HTTP client: no native bindings, so it runs on
+  // Vercel serverless functions. The native client is only loaded for file URLs
+  // (local development). Dynamic import keeps the native binding out of Vercel.
+  const client = url.startsWith('file:')
+    ? (await import('@libsql/client')).createClient({ url })
+    : (await import('@libsql/client/http')).createClient({ url, authToken: tursoToken });
 
   const exec = (sql: string, args?: SqlParams) =>
     client.execute({
