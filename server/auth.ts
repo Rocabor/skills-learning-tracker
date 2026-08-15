@@ -5,7 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'skilltrack-dev-secret-key-2026-sec
 
 export interface AuthUser {
   id: string;
-  username: string;
+  email: string;
   name: string;
 }
 
@@ -28,7 +28,7 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & AuthUser;
     req.user = {
       id: decoded.id,
-      username: decoded.username,
+      email: decoded.email,
       name: decoded.name,
     };
     next();

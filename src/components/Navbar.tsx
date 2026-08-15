@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
   const timerMinutes = activeTimer ? Math.floor(activeTimer.elapsedSeconds / 60) : 0;
   const timerSeconds = activeTimer ? activeTimer.elapsedSeconds % 60 : 0;
 
-  const displayName = user?.name || user?.username || 'User';
+  const displayName = user?.name || 'User';
   const initials = displayName.substring(0, 2).toUpperCase();
 
   return (
@@ -211,7 +211,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#DDDDD6] dark:border-[#333A33] bg-white dark:bg-[#1C201C] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-xs font-semibold text-[#1A1D1A] dark:text-[#ECF0EC] transition-colors cursor-pointer"
               >
                 <UserIcon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>Sign In (PIN)</span>
+                <span>Sign In</span>
               </button>
             )}
 
@@ -225,9 +225,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                 <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white dark:bg-[#1C201C] border border-[#DDDDD6] dark:border-[#333A33] shadow-xl z-50 p-2 text-sm text-[#1A1D1A] dark:text-[#ECF0EC]">
                   <div className="px-3 py-2 border-b border-[#DDDDD6] dark:border-[#262B26]">
                     <p className="font-semibold">{displayName}</p>
-                    {user.username && (
+                    {user.email && (
                       <p className="text-xs text-emerald-600 dark:text-emerald-400 font-mono font-medium truncate">
-                        @{user.username}
+                        {user.email}
                       </p>
                     )}
                     {user.isGuest && (
@@ -282,7 +282,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
                         className="w-full text-left px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-medium flex items-center gap-2 hover:bg-emerald-100 cursor-pointer"
                       >
                         <UserIcon className="w-4 h-4" />
-                        Sign In / Create Account with PIN
+                        Sign In / Create Account
                       </button>
                     ) : (
                       <button

@@ -24,16 +24,16 @@ function getAuthHeaders(): HeadersInit {
   };
 }
 
-// ---------------- AUTH (Username + 4-Digit PIN) ----------------
+// ---------------- AUTH (Email + Password) ----------------
 export async function apiRegister(
-  username: string,
-  pin: string,
+  email: string,
+  password: string,
   name?: string,
 ): Promise<{ user: User; token: string }> {
   const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, pin, name: name || username }),
+    body: JSON.stringify({ email, password, name }),
   });
 
   const data = await res.json();
@@ -45,11 +45,11 @@ export async function apiRegister(
   return data;
 }
 
-export async function apiLogin(username: string, pin: string): Promise<{ user: User; token: string }> {
+export async function apiLogin(email: string, password: string): Promise<{ user: User; token: string }> {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, pin }),
+    body: JSON.stringify({ email, password }),
   });
 
   const data = await res.json();
@@ -61,7 +61,39 @@ export async function apiLogin(username: string, pin: string): Promise<{ user: U
   return data;
 }
 
-export async function apiGetProfiles(): Promise<{ username: string; name: string }[]> {
+export async function apiRequestPasswordReset(email: string): Promise<{ message: string; devCode?: string }> {
+  const res = await fetch('/api/auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Could not request password reset');
+  }
+  return data;
+}
+
+export async function apiResetPassword(
+  email: string,
+  code: string,
+  newPassword: string,
+): Promise<{ message: string }> {
+  const res = await fetch('/api/auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code, newPassword }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Could not reset password');
+  }
+  return data;
+}
+
+export async function apiGetProfiles(): Promise<{ email: string; name: string }[]> {
   try {
     const res = await fetch('/api/auth/profiles');
     const data = await res.json();

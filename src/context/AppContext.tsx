@@ -52,8 +52,8 @@ interface AppContextType {
   deleteSession: (id: string) => Promise<void>;
 
   // Auth & Modes
-  login: (username: string, pin: string) => Promise<void>;
-  signup: (username: string, pin: string, name?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   enterGuestMode: () => void;
   resetToSampleData: () => void;
@@ -123,7 +123,7 @@ const getGuestSessions = (): Session[] => {
 
 const GUEST_USER: User = {
   id: 'guest-1',
-  username: 'guest',
+  email: 'guest@skilltrack.local',
   name: 'Jordan',
   isGuest: true,
   joinedAt: new Date().toISOString(),
@@ -532,11 +532,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Auth Management connected to Node/Express + SQLite backend (Username + 4-Digit PIN)
-  const login = async (username: string, pin: string) => {
+  // Auth Management connected to Node/Express + SQLite backend (Email + Password)
+  const login = async (email: string, password: string) => {
     try {
-      const res = await apiLogin(username, pin);
-      const displayName = res.user.name || res.user.username || username;
+      const res = await apiLogin(email, password);
+      const displayName = res.user.name || email;
       const loggedUser: User = { ...res.user, name: displayName };
 
       setUser(loggedUser);
@@ -556,10 +556,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const signup = async (username: string, pin: string, name?: string) => {
+  const signup = async (email: string, password: string, name?: string) => {
     try {
-      const res = await apiRegister(username, pin, name);
-      const displayName = res.user.name || username;
+      const res = await apiRegister(email, password, name);
+      const displayName = res.user.name || email;
       const newUser: User = { ...res.user, name: displayName };
 
       setUser(newUser);
@@ -569,7 +569,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setSelectedSkillId(null);
       setAiInsight(null);
 
-      showToast(`Account created successfully for @${username}!`);
+      showToast(`Account created successfully for ${email}!`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error registering user';
       showToast(message);

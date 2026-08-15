@@ -43,7 +43,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
             onClick={onOpenAuth}
             className="text-xs sm:text-sm font-semibold text-[#4A524A] dark:text-[#A0AAA0] hover:text-[#1A1D1A] dark:hover:text-[#ECF0EC] px-3 py-1.5 transition-colors cursor-pointer"
           >
-            Sign In with PIN
+            Sign In
           </button>
           <button
             onClick={enterGuestMode}
@@ -67,7 +67,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </h1>
 
         <p className="mt-6 text-base sm:text-lg text-[#4A524A] dark:text-[#A0AAA0] max-w-2xl mx-auto leading-relaxed">
-          Sign in instantly with your username and a 4-digit PIN. No email or complex passwords required, with secure persistent SQLite storage.
+          Sign in with your email and password. Create an account to save your practice history securely, or explore instantly as a guest.
         </p>
 
         {/* Dual CTAs */}
@@ -85,7 +85,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
             onClick={onOpenAuth}
             className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white dark:bg-[#1C201C] border border-[#DDDDD6] dark:border-[#333A33] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-[#1A1D1A] dark:text-[#ECF0EC] font-semibold text-sm sm:text-base shadow-xs transition-colors cursor-pointer"
           >
-            Create User with PIN
+            Create Account
           </button>
         </div>
 

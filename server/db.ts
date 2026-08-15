@@ -37,21 +37,22 @@ export async function getDb(): Promise<SqlDatabase> {
     const fileBuffer = fs.readFileSync(dbPath);
     try {
       rawDb = new SQL.Database(fileBuffer);
-      // Check if users table needs migration
+      // Check if users table needs migration to email + password schema
       const checkStmt = rawDb.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'");
       if (checkStmt.step()) {
         checkStmt.free();
         // Check columns
         const colStmt = rawDb.prepare('PRAGMA table_info(users)');
-        let hasUsername = false;
+        let hasEmail = false;
         while (colStmt.step()) {
           const col = colStmt.getAsObject();
-          if (col.name === 'username') hasUsername = true;
+          if (col.name === 'email') hasEmail = true;
         }
         colStmt.free();
 
-        if (!hasUsername) {
-          // Drop old tables to migrate to username + PIN schema cleanly
+        if (!hasEmail) {
+          // Drop old tables to migrate to email + password schema cleanly
+          rawDb.run('DROP TABLE IF EXISTS password_resets');
           rawDb.run('DROP TABLE IF EXISTS users');
         }
       } else {
@@ -74,15 +75,24 @@ export async function getDb(): Promise<SqlDatabase> {
     }
   };
 
-  // Create tables with username and PIN hash
+  // Create tables with email + password hash
   rawDb.run(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
-      username TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
-      pin_hash TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      code TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      used INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS skills (
@@ -109,7 +119,8 @@ export async function getDb(): Promise<SqlDatabase> {
       updated_at TEXT
     );
 
-    CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+    CREATE INDEX IF NOT EXISTS idx_resets_user ON password_resets(user_id);
     CREATE INDEX IF NOT EXISTS idx_skills_user ON skills(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_skill ON sessions(skill_id);

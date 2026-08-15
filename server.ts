@@ -26,19 +26,42 @@ app.get('/api/health', (_req, res) => {
 // ZOD VALIDATION SCHEMAS (Server side)
 // ----------------------------------------------------
 const ServerRegisterSchema = z.object({
-  username: z
+  email: z
     .string()
     .trim()
-    .min(3, 'Username must be at least 3 characters')
-    .max(20, 'Username cannot exceed 20 characters')
-    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, hyphens, and underscores'),
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
   name: z.string().trim().optional(),
-  pin: z.string().regex(/^\d{4}$/, 'PIN must be exactly 4 numeric digits (0000-9999)'),
+  password: z
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .max(72, 'Password cannot exceed 72 characters'),
 });
 
 const ServerLoginSchema = z.object({
-  username: z.string().trim().min(1, 'Username is required'),
-  pin: z.string().regex(/^\d{4}$/, 'PIN must be 4 numeric digits'),
+  email: z.string().trim().min(1, 'Email is required'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+const ServerForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
+});
+
+const ServerResetPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
+  code: z.string().regex(/^\d{6}$/, 'Reset code must be 6 digits'),
+  newPassword: z
+    .string()
+    .min(6, 'New password must be at least 6 characters')
+    .max(72, 'New password cannot exceed 72 characters'),
 });
 
 // ----------------------------------------------------
@@ -46,11 +69,19 @@ const ServerLoginSchema = z.object({
 // ----------------------------------------------------
 interface UserRow {
   id: string;
-  username: string;
+  email: string;
   name: string;
-  pin_hash: string;
+  password_hash: string;
   created_at: string;
   updated_at: string;
+}
+
+interface ResetRow {
+  id: string;
+  user_id: string;
+  code: string;
+  expires_at: string;
+  used: number;
 }
 
 interface SkillRow {
@@ -77,10 +108,10 @@ interface SessionRow {
 }
 
 // ----------------------------------------------------
-// AUTHENTICATION ROUTES (Username + 4-Digit PIN with bcrypt & JWT)
+// AUTHENTICATION ROUTES (Email + Password with bcrypt & JWT)
 // ----------------------------------------------------
 
-// Register with Username & 4-Digit PIN
+// Register with Email & Password
 app.post('/api/auth/register', async (req, res) => {
   try {
     const parseResult = ServerRegisterSchema.safeParse(req.body);
@@ -90,33 +121,33 @@ app.post('/api/auth/register', async (req, res) => {
       });
     }
 
-    const { username, name, pin } = parseResult.data;
-    const cleanUsername = username.toLowerCase();
-    const displayName = name && name.trim() ? name.trim() : username;
+    const { email, name, password } = parseResult.data;
+    const cleanEmail = email.trim().toLowerCase();
+    const displayName = name && name.trim() ? name.trim() : cleanEmail.split('@')[0];
 
     const db = await getDb();
-    const existing = await db.get<UserRow>('SELECT id FROM users WHERE username = ?', cleanUsername);
+    const existing = await db.get<UserRow>('SELECT id FROM users WHERE email = ?', cleanEmail);
     if (existing) {
-      return res.status(400).json({ error: `Username @${cleanUsername} is already taken. Please choose another.` });
+      return res.status(400).json({ error: `An account with ${cleanEmail} already exists. Please sign in.` });
     }
 
-    // Hash the 4-digit PIN securely with bcrypt
+    // Hash the password securely with bcrypt
     const salt = await bcrypt.genSalt(11);
-    const pinHash = await bcrypt.hash(pin, salt);
+    const passwordHash = await bcrypt.hash(password, salt);
     const userId = 'user_' + crypto.randomUUID();
     const now = new Date().toISOString();
 
     await db.run(
-      'INSERT INTO users (id, username, name, pin_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, cleanUsername, displayName, pinHash, now, now],
+      'INSERT INTO users (id, email, name, password_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+      [userId, cleanEmail, displayName, passwordHash, now, now],
     );
 
-    const token = generateToken({ id: userId, username: cleanUsername, name: displayName });
+    const token = generateToken({ id: userId, email: cleanEmail, name: displayName });
 
     res.status(201).json({
       user: {
         id: userId,
-        username: cleanUsername,
+        email: cleanEmail,
         name: displayName,
         isGuest: false,
         joinedAt: now,
@@ -129,36 +160,36 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// Login with Username & 4-Digit PIN
+// Login with Email & Password
 app.post('/api/auth/login', async (req, res) => {
   try {
     const parseResult = ServerLoginSchema.safeParse(req.body);
     if (!parseResult.success) {
       return res.status(400).json({
-        error: parseResult.error.issues[0]?.message || 'Invalid username or PIN',
+        error: parseResult.error.issues[0]?.message || 'Invalid email or password',
       });
     }
 
-    const { username, pin } = parseResult.data;
-    const cleanUsername = username.toLowerCase();
+    const { email, password } = parseResult.data;
+    const cleanEmail = email.trim().toLowerCase();
     const db = await getDb();
-    const user = await db.get<UserRow>('SELECT * FROM users WHERE username = ?', cleanUsername);
+    const user = await db.get<UserRow>('SELECT * FROM users WHERE email = ?', cleanEmail);
 
     if (!user) {
-      return res.status(401).json({ error: `User @${cleanUsername} not found. Please create an account.` });
+      return res.status(401).json({ error: 'No account found with that email. Please create an account.' });
     }
 
-    const isMatch = await bcrypt.compare(pin, user.pin_hash);
+    const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Incorrect 4-digit PIN' });
+      return res.status(401).json({ error: 'Incorrect password. Please try again.' });
     }
 
-    const token = generateToken({ id: user.id, username: user.username, name: user.name });
+    const token = generateToken({ id: user.id, email: user.email, name: user.name });
 
     res.json({
       user: {
         id: user.id,
-        username: user.username,
+        email: user.email,
         name: user.name,
         isGuest: false,
         joinedAt: user.created_at,
@@ -171,13 +202,108 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Request a password reset code (dev mode returns the code since there is no email service)
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const parseResult = ServerForgotPasswordSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: parseResult.error.issues[0]?.message || 'Invalid email',
+      });
+    }
+
+    const cleanEmail = parseResult.data.email.trim().toLowerCase();
+    const db = await getDb();
+    const user = await db.get<UserRow>('SELECT id FROM users WHERE email = ?', cleanEmail);
+    if (!user) {
+      // Do not reveal whether an account exists; same response either way
+      return res.json({
+        message: 'If an account exists for that email, a reset code has been generated.',
+      });
+    }
+
+    // Invalidate previous codes for this user
+    await db.run('DELETE FROM password_resets WHERE user_id = ?', user.id);
+
+    const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const now = new Date().toISOString();
+
+    await db.run(
+      'INSERT INTO password_resets (id, user_id, code, expires_at, used, created_at) VALUES (?, ?, ?, ?, 0, ?)',
+      ['reset_' + crypto.randomUUID(), user.id, code, expiresAt, now],
+    );
+
+    // Development delivery: no SMTP configured, so return the code to the client
+    console.log(`[password-reset] code for ${cleanEmail}: ${code}`);
+    const devCode = process.env.NODE_ENV !== 'production' ? code : undefined;
+
+    res.json({
+      message: `A 6-digit reset code has been generated for ${cleanEmail}.`,
+      devCode,
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to request password reset' });
+  }
+});
+
+// Complete a password reset with email + code + new password
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const parseResult = ServerResetPasswordSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: parseResult.error.issues[0]?.message || 'Invalid reset data',
+      });
+    }
+
+    const { code, newPassword } = parseResult.data;
+    const cleanEmail = parseResult.data.email.trim().toLowerCase();
+    const db = await getDb();
+    const user = await db.get<UserRow>('SELECT * FROM users WHERE email = ?', cleanEmail);
+    if (!user) {
+      return res.status(400).json({ error: 'No account found with that email' });
+    }
+
+    const reset = await db.get<ResetRow>(
+      'SELECT * FROM password_resets WHERE user_id = ? AND code = ? AND used = 0 ORDER BY created_at DESC LIMIT 1',
+      [user.id, code],
+    );
+    if (!reset) {
+      return res.status(400).json({ error: 'Invalid or expired reset code' });
+    }
+
+    if (new Date(reset.expires_at) < new Date()) {
+      await db.run('UPDATE password_resets SET used = 1 WHERE id = ?', reset.id);
+      return res.status(400).json({ error: 'This reset code has expired. Please request a new one.' });
+    }
+
+    const salt = await bcrypt.genSalt(11);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
+    const now = new Date().toISOString();
+
+    await db.run('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?', [
+      passwordHash,
+      now,
+      user.id,
+    ]);
+    await db.run('UPDATE password_resets SET used = 1 WHERE id = ?', reset.id);
+
+    res.json({ message: 'Password reset successfully. You can now sign in.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
 // List existing local profiles on this instance
 app.get('/api/auth/profiles', async (_req, res) => {
   try {
     const db = await getDb();
-    const rows = await db.all<UserRow>('SELECT username, name FROM users ORDER BY updated_at DESC LIMIT 8');
+    const rows = await db.all<UserRow>('SELECT email, name FROM users ORDER BY updated_at DESC LIMIT 8');
     res.json({
-      profiles: (rows || []).map((r) => ({ username: r.username, name: r.name })),
+      profiles: (rows || []).map((r) => ({ email: r.email, name: r.name })),
     });
   } catch {
     res.json({ profiles: [] });
@@ -189,7 +315,7 @@ app.get('/api/auth/me', requireAuth, async (req: AuthRequest, res) => {
   try {
     const db = await getDb();
     const user = await db.get<UserRow>(
-      'SELECT id, username, name, created_at FROM users WHERE id = ?',
+      'SELECT id, email, name, created_at FROM users WHERE id = ?',
       req.user!.id,
     );
     if (!user) {
@@ -199,7 +325,7 @@ app.get('/api/auth/me', requireAuth, async (req: AuthRequest, res) => {
     res.json({
       user: {
         id: user.id,
-        username: user.username,
+        email: user.email,
         name: user.name,
         isGuest: false,
         joinedAt: user.created_at,
