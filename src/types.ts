@@ -59,9 +59,20 @@ export interface OverallStats {
 }
 
 export interface HeatmapDay {
-  date: string;
-  minutes: number;
-  sessions: number;
+  date: string; // YYYY-MM-DD
+  totalMinutes: number;
+  sessionCount: number;
+  sessions: {
+    id: string;
+    skillId: string;
+    skillName: string;
+    skillColor: string;
+    durationMinutes: number;
+    notes: string | null;
+  }[];
+  level: 0 | 1 | 2 | 3; // 0: 0m, 1: 1-29m, 2: 30-59m, 3: 60m+
+  isFuture: boolean;
+  isToday: boolean;
 }
 
 export interface AIInsights {

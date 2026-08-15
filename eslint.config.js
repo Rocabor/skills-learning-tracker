@@ -18,6 +18,10 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // Reset de formularios al abrir modales es un patrón válido
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
   {
     files: ['server/**/*.{ts,tsx}', 'server.ts'],
