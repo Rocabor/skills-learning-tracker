@@ -572,7 +572,9 @@ async function setupServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`SkillTrack fullstack server running on http://0.0.0.0:${PORT}`);
+    console.log(`\n  SkillTrack fullstack server running on:`);
+    console.log(`    http://localhost:${PORT}   <- open this URL in your browser`);
+    console.log(`    http://127.0.0.1:${PORT}\n`);
   });
 }
 
