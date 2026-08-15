@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from './context/AppContext';
 import { CURATED_COLOR_PALETTE } from './data/sampleData';
 import type { SkillGoal } from './types';
+import { SkillFormSchema } from './utils/validators';
 import { X, Trash2, Check } from 'lucide-react';
 
 export const SkillModal: React.FC = () => {
@@ -46,33 +47,33 @@ export const SkillModal: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      setError('Please enter a skill name.');
+
+    const result = SkillFormSchema.safeParse({
+      name,
+      targetHours: goalType !== 'none' ? parseFloat(targetHours) : undefined,
+    });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
       return;
     }
 
     let goal: SkillGoal | null = null;
     if (goalType !== 'none') {
-      const hrs = parseFloat(targetHours);
-      if (!hrs || hrs <= 0) {
-        setError('Please enter a valid target hours number.');
-        return;
-      }
       goal = {
         type: goalType,
-        targetHours: hrs
+        targetHours: result.data.targetHours!
       };
     }
 
     if (editingSkill) {
       updateSkill(editingSkill.id, {
-        name: name.trim(),
+        name: result.data.name,
         color,
         goal
       });
     } else {
       addSkill({
-        name: name.trim(),
+        name: result.data.name,
         color,
         goal
       }).catch(() => {});

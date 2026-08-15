@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { parseFlexibleDuration, getTodayDateString } from '../utils/dateUtils';
+import { SessionFormSchema } from '../utils/validators';
 import { X, Clock, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
 
 export const LogSessionModal: React.FC = () => {
@@ -57,48 +58,39 @@ export const LogSessionModal: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!skillId) {
-      setError('Please select a skill.');
+    const result = SessionFormSchema.safeParse({
+      skillId,
+      durationMinutes: parseFlexibleDuration(durationInput) ?? NaN,
+      date,
+      notes: notes.trim() || null
+    });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
       return;
     }
 
-    const parsedMins = parseFlexibleDuration(durationInput);
-    if (!parsedMins || parsedMins < 1) {
-      setError('Please enter a valid duration (e.g. 45, 1h 30m, or 1.5).');
-      return;
-    }
+    const { skillId: validatedSkillId, durationMinutes, date: validatedDate, notes: validatedNotes } = result.data;
 
-    if (parsedMins > 480) {
+    if (durationMinutes > 480) {
       // Warning for > 8 hours
-      if (!window.confirm(`You entered ${parsedMins} minutes (${(parsedMins / 60).toFixed(1)} hours). Are you sure?`)) {
+      if (!window.confirm(`You entered ${durationMinutes} minutes (${(durationMinutes / 60).toFixed(1)} hours). Are you sure?`)) {
         return;
       }
     }
 
-    if (!date) {
-      setError('Please choose a practice date.');
-      return;
-    }
-
-    const today = getTodayDateString();
-    if (date > today) {
-      setError('Practice date cannot be in the future.');
-      return;
-    }
-
     if (editingSession) {
       updateSession(editingSession.id, {
-        skillId,
-        durationMinutes: parsedMins,
-        date,
-        notes: notes.trim() || null
+        skillId: validatedSkillId,
+        durationMinutes,
+        date: validatedDate,
+        notes: validatedNotes ?? null
       });
     } else {
       addSession({
-        skillId,
-        durationMinutes: parsedMins,
-        date,
-        notes: notes.trim() || null
+        skillId: validatedSkillId,
+        durationMinutes,
+        date: validatedDate,
+        notes: validatedNotes ?? null
       }).catch(() => {});
     }
 

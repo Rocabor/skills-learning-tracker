@@ -61,6 +61,41 @@ const ServerResetPasswordSchema = z.object({
     .max(72, 'New password cannot exceed 72 characters'),
 });
 
+const serverToday = () => new Date().toISOString().slice(0, 10);
+
+const ServerSkillSchema = z.object({
+  name: z.string().trim().min(1, 'Skill name is required'),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  goal: z
+    .object({
+      type: z.enum(['total', 'weekly']),
+      targetHours: z.number().positive(),
+    })
+    .optional(),
+});
+
+const ServerSkillUpdateSchema = ServerSkillSchema.partial();
+
+const ServerSessionBaseSchema = z.object({
+  skillId: z.string().min(1, 'Skill is required'),
+  durationMinutes: z.number().int().positive().max(1440),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
+  notes: z.string().nullable().optional(),
+});
+
+const notInFuture = (d: { date?: string | undefined }) =>
+  !d.date || d.date <= serverToday();
+
+const ServerSessionSchema = ServerSessionBaseSchema.refine(notInFuture, {
+  message: 'Date cannot be in the future',
+  path: ['date'],
+});
+
+const ServerSessionUpdateSchema = ServerSessionBaseSchema.partial().refine(notInFuture, {
+  message: 'Date cannot be in the future',
+  path: ['date'],
+});
+
 // ----------------------------------------------------
 // ROW TYPES (SQL -> API objects)
 // ----------------------------------------------------
@@ -367,10 +402,11 @@ app.get('/api/skills', requireAuth, async (req: AuthRequest, res) => {
 // Create skill
 app.post('/api/skills', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const { name, color, goal } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: 'Skill name is required' });
+    const parseResult = ServerSkillSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0]?.message ?? 'Invalid skill payload' });
     }
+    const { name, color, goal } = parseResult.data;
 
     const skillId = 'skill_' + crypto.randomUUID();
     const now = new Date().toISOString();
@@ -379,12 +415,12 @@ app.post('/api/skills', requireAuth, async (req: AuthRequest, res) => {
     const db = await getDb();
     await db.run(
       'INSERT INTO skills (id, user_id, name, category, color, target_hours, icon, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [skillId, req.user!.id, name.trim(), 'General', color || '#6366f1', targetHours, null, now, now],
+      [skillId, req.user!.id, name, 'General', color || '#6366f1', targetHours, null, now, now],
     );
 
     const newSkill = {
       id: skillId,
-      name: name.trim(),
+      name,
       color: color || '#6366f1',
       goal: goal || { type: 'total', targetHours },
       createdAt: now,
@@ -402,7 +438,11 @@ app.post('/api/skills', requireAuth, async (req: AuthRequest, res) => {
 app.put('/api/skills/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
     const id = String(req.params.id);
-    const { name, color, goal } = req.body;
+    const parseResult = ServerSkillUpdateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0]?.message ?? 'Invalid skill payload' });
+    }
+    const { name, color, goal } = parseResult.data;
 
     const db = await getDb();
     const skill = await db.get<SkillRow>('SELECT * FROM skills WHERE id = ? AND user_id = ?', [
@@ -418,13 +458,13 @@ app.put('/api/skills/:id', requireAuth, async (req: AuthRequest, res) => {
 
     await db.run(
       'UPDATE skills SET name = ?, color = ?, target_hours = ?, updated_at = ? WHERE id = ? AND user_id = ?',
-      [name ? name.trim() : skill.name, color || skill.color, targetHours, now, id, req.user!.id],
+      [name ?? skill.name, color || skill.color, targetHours, now, id, req.user!.id],
     );
 
     res.json({
       skill: {
         id,
-        name: name ? name.trim() : skill.name,
+        name: name ?? skill.name,
         color: color || skill.color,
         goal: { type: 'total', targetHours },
         createdAt: skill.created_at,
@@ -492,10 +532,11 @@ app.get('/api/sessions', requireAuth, async (req: AuthRequest, res) => {
 // Create practice session
 app.post('/api/sessions', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const { skillId, durationMinutes, date, notes } = req.body;
-    if (!skillId || !durationMinutes || !date) {
-      return res.status(400).json({ error: 'Skill, duration, and date are required' });
+    const parseResult = ServerSessionSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0]?.message ?? 'Invalid session payload' });
     }
+    const { skillId, durationMinutes, date, notes } = parseResult.data;
 
     const db = await getDb();
     // Validate skill ownership
@@ -512,13 +553,13 @@ app.post('/api/sessions', requireAuth, async (req: AuthRequest, res) => {
 
     await db.run(
       'INSERT INTO sessions (id, user_id, skill_id, duration_minutes, date, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [sessionId, req.user!.id, skillId, Number(durationMinutes), date, notes || null, now],
+      [sessionId, req.user!.id, skillId, durationMinutes, date, notes || null, now],
     );
 
     const newSession = {
       id: sessionId,
       skillId,
-      durationMinutes: Number(durationMinutes),
+      durationMinutes,
       date,
       notes: notes || null,
       createdAt: now,
@@ -536,7 +577,12 @@ app.post('/api/sessions', requireAuth, async (req: AuthRequest, res) => {
 app.put('/api/sessions/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
     const id = String(req.params.id);
-    const { skillId, durationMinutes, date, notes } = req.body;
+    const parseResult = ServerSessionUpdateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0]?.message ?? 'Invalid session payload' });
+    }
+    const { skillId, durationMinutes, date, notes } = parseResult.data;
+
     const db = await getDb();
     const userId = req.user!.id;
 
@@ -563,7 +609,7 @@ app.put('/api/sessions/:id', requireAuth, async (req: AuthRequest, res) => {
       `UPDATE sessions SET skill_id = ?, duration_minutes = ?, date = ?, notes = ?, updated_at = ? WHERE id = ? AND user_id = ?`,
       [
         newSkillId,
-        durationMinutes !== undefined ? Number(durationMinutes) : session.duration_minutes,
+        durationMinutes !== undefined ? durationMinutes : session.duration_minutes,
         date ?? session.date,
         notes !== undefined ? notes : session.notes,
         now,
@@ -577,7 +623,7 @@ app.put('/api/sessions/:id', requireAuth, async (req: AuthRequest, res) => {
         id,
         skillId: newSkillId,
         durationMinutes:
-          durationMinutes !== undefined ? Number(durationMinutes) : session.duration_minutes,
+          durationMinutes !== undefined ? durationMinutes : session.duration_minutes,
         date: date ?? session.date,
         notes: notes !== undefined ? notes : session.notes,
         createdAt: session.created_at,
