@@ -33,7 +33,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#7A837A] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
+            className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -48,7 +48,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
                 <h3 className="text-sm font-semibold text-[#1A1D1A] dark:text-[#ECF0EC]">
                   Reduced Motion
                 </h3>
-                <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0] mt-0.5">
+                <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0] mt-0.5">
                   Disables progress ring animations and smooth transitions.
                 </p>
               </div>
@@ -56,7 +56,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
             <button
               onClick={() => setReducedMotion(!reducedMotion)}
               className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                reducedMotion ? 'bg-emerald-600' : 'bg-[#DDDDD6] dark:bg-[#333A33]'
+                reducedMotion ? 'bg-emerald-700' : 'bg-[#DDDDD6] dark:bg-[#333A33]'
               }`}
               role="switch"
               aria-checked={reducedMotion}
@@ -77,7 +77,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
                 <h3 className="text-sm font-semibold text-[#1A1D1A] dark:text-[#ECF0EC]">
                   High Contrast Borders
                 </h3>
-                <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0] mt-0.5">
+                <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0] mt-0.5">
                   Enhances border visibility and contrast ratios across cards and heatmap cells.
                 </p>
               </div>
@@ -85,7 +85,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
             <button
               onClick={() => setHighContrast(!highContrast)}
               className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                highContrast ? 'bg-emerald-600' : 'bg-[#DDDDD6] dark:bg-[#333A33]'
+                highContrast ? 'bg-emerald-700' : 'bg-[#DDDDD6] dark:bg-[#333A33]'
               }`}
               role="switch"
               aria-checked={highContrast}
@@ -102,7 +102,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
           <div className="p-3.5 rounded-xl bg-[#F9F9F7] dark:bg-[#232823] border border-[#DDDDD6] dark:border-[#333A33]">
             <div className="flex items-center gap-2 mb-2">
               <Keyboard className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#7A837A] dark:text-[#A0AAA0]">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#5F6A5F] dark:text-[#A0AAA0]">
                 Keyboard Shortcuts
               </h3>
             </div>
@@ -132,7 +132,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
         <div className="mt-5 pt-3 border-t border-[#DDDDD6] dark:border-[#262B26] flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
           >
             Done
           </button>

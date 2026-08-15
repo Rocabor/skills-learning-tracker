@@ -146,11 +146,11 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
             <h2 className="font-display font-semibold text-lg sm:text-xl text-[#1A1D1A] dark:text-[#ECF0EC]">
               Practice Activity
             </h2>
-            <span className="text-xs text-[#7A837A] dark:text-[#A0AAA0]">
+            <span className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
               Last {weeksCount} weeks
             </span>
           </div>
-          <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0] mt-0.5">
+          <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0] mt-0.5">
             {summaryStats.totalActiveDays} active days • {formatMinutes(summaryStats.totalMinutesPeriod)} total practice
           </p>
         </div>
@@ -176,7 +176,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
           {/* Table / Grid view switcher for accessibility */}
           <button
             onClick={() => setViewMode(viewMode === 'grid' ? 'table' : 'grid')}
-            className="p-1.5 rounded-lg text-[#7A837A] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] border border-[#DDDDD6] dark:border-[#333A33] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] border border-[#DDDDD6] dark:border-[#333A33] transition-colors cursor-pointer"
             title={viewMode === 'grid' ? 'Switch to accessible table view' : 'Switch to grid view'}
             aria-label={viewMode === 'grid' ? 'Switch to accessible table view' : 'Switch to grid view'}
           >
@@ -190,7 +190,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
         <div className="relative overflow-x-auto no-scrollbar pb-2">
           <div className="inline-block min-w-full">
             {/* Month labels row */}
-            <div className="flex text-[10px] text-[#7A837A] dark:text-[#A0AAA0] mb-1.5 ml-6">
+            <div className="flex text-[10px] text-[#5F6A5F] dark:text-[#A0AAA0] mb-1.5 ml-6">
               {weeks.map((week, idx) => {
                 const month = new Date(`${week[0].date}T00:00:00`).toLocaleDateString('en-US', { month: 'short' });
                 return (
@@ -204,7 +204,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
             {/* Heatmap Grid */}
             <div className="flex">
               {/* Day of week labels (Mon, Wed, Fri) */}
-              <div className="flex flex-col justify-between text-[10px] text-[#7A837A] dark:text-[#A0AAA0] pr-2 py-0.5 select-none">
+              <div className="flex flex-col justify-between text-[10px] text-[#5F6A5F] dark:text-[#A0AAA0] pr-2 py-0.5 select-none">
                 <span className="h-[14px] sm:h-[15px] leading-[14px]">M</span>
                 <span className="h-[14px] sm:h-[15px] leading-[14px]">W</span>
                 <span className="h-[14px] sm:h-[15px] leading-[14px]">F</span>
@@ -214,7 +214,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
               {/* Columns of weeks */}
               <div className="flex gap-[3px]">
                 {weeks.map((week, colIdx) => (
-                  <div key={colIdx} className="flex flex-col gap-[3px]" role="row">
+                  <div key={colIdx} className="flex flex-col gap-[3px]">
                     {week.map((day) => {
                       const hasPractice = day.totalMinutes > 0;
                       return (
@@ -243,7 +243,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
             </div>
 
             {/* Bottom Legend */}
-            <div className="flex items-center justify-between mt-4 text-[11px] text-[#7A837A] dark:text-[#A0AAA0]">
+            <div className="flex items-center justify-between mt-4 text-[11px] text-[#5F6A5F] dark:text-[#A0AAA0]">
               <span>
                 {hoveredDay ? (
                   <strong className="text-[#1A1D1A] dark:text-[#ECF0EC]">
@@ -331,7 +331,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
               </div>
               <button
                 onClick={() => setActiveDayModal(null)}
-                className="p-1 rounded-lg hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-[#7A837A] cursor-pointer"
+                className="p-1 rounded-lg hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-[#5F6A5F] cursor-pointer"
                 aria-label="Close day details"
               >
                 ✕

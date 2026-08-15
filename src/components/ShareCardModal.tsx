@@ -66,7 +66,7 @@ export const ShareCardModal: React.FC = () => {
           </div>
           <button
             onClick={() => setIsShareModalOpen(false)}
-            className="p-1.5 rounded-lg text-[#7A837A] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
+            className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,7 +74,7 @@ export const ShareCardModal: React.FC = () => {
 
         {/* Theme Picker */}
         <div className="flex items-center justify-between gap-2 mb-4">
-          <span className="text-xs font-semibold text-[#7A837A] dark:text-[#A0AAA0]">
+          <span className="text-xs font-semibold text-[#5F6A5F] dark:text-[#A0AAA0]">
             Card Theme:
           </span>
           <div className="flex items-center gap-1.5 bg-[#F2F2EE] dark:bg-[#262B26] p-1 rounded-xl">
@@ -83,7 +83,7 @@ export const ShareCardModal: React.FC = () => {
               className={`px-3 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                 cardTheme === 'dark'
                   ? 'bg-black text-white shadow-xs'
-                  : 'text-[#7A837A] hover:text-[#1A1D1A]'
+                  : 'text-[#5F6A5F] hover:text-[#1A1D1A]'
               }`}
             >
               Dark Minimal
@@ -93,7 +93,7 @@ export const ShareCardModal: React.FC = () => {
               className={`px-3 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                 cardTheme === 'emerald'
                   ? 'bg-emerald-700 text-white shadow-xs'
-                  : 'text-[#7A837A] hover:text-[#1A1D1A]'
+                  : 'text-[#5F6A5F] hover:text-[#1A1D1A]'
               }`}
             >
               Emerald Lush
@@ -103,7 +103,7 @@ export const ShareCardModal: React.FC = () => {
               className={`px-3 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                 cardTheme === 'sunset'
                   ? 'bg-orange-700 text-white shadow-xs'
-                  : 'text-[#7A837A] hover:text-[#1A1D1A]'
+                  : 'text-[#5F6A5F] hover:text-[#1A1D1A]'
               }`}
             >
               Sunset Ember
@@ -138,7 +138,7 @@ export const ShareCardModal: React.FC = () => {
 
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer"
           >
             <Download className="w-4 h-4" />
             <span>Download High-Res PNG</span>

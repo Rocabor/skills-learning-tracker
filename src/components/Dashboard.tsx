@@ -117,7 +117,7 @@ export const Dashboard: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 onClick={openAddSkillModal}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold shadow-md shadow-emerald-600/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold shadow-md shadow-emerald-600/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Your First Skill</span>
@@ -133,7 +133,7 @@ export const Dashboard: React.FC = () => {
             <div className="mt-4">
               <button
                 onClick={resetToSampleData}
-                className="text-xs text-[#7A837A] dark:text-[#A0AAA0] hover:text-[#1A1D1A] dark:hover:text-[#ECF0EC] hover:underline cursor-pointer"
+                className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0] hover:text-[#1A1D1A] dark:hover:text-[#ECF0EC] hover:underline cursor-pointer"
               >
                 Or explore with sample demo data (6 skills, 47 sessions)
               </button>
@@ -182,7 +182,7 @@ export const Dashboard: React.FC = () => {
                       <span className="font-display font-bold text-2xl text-emerald-600 dark:text-emerald-400">
                         {formatHoursDecimal(featuredStats.totalMinutes)}
                       </span>
-                      <span className="text-[10px] text-[#7A837A]">total hours</span>
+                      <span className="text-[10px] text-[#5F6A5F]">total hours</span>
                     </div>
                   )}
                 </div>
@@ -193,7 +193,7 @@ export const Dashboard: React.FC = () => {
                     <span className="font-display font-bold text-xl text-[#1A1D1A] dark:text-[#ECF0EC] block">
                       {formatHoursDecimal(featuredStats.totalMinutes)}
                     </span>
-                    <span className="text-[11px] text-[#7A837A] dark:text-[#A0AAA0]">Total hours</span>
+                    <span className="text-[11px] text-[#5F6A5F] dark:text-[#A0AAA0]">Total hours</span>
                   </div>
 
                   <div className="p-3 rounded-xl bg-[#F9F9F7] dark:bg-[#232823] border border-[#DDDDD6] dark:border-[#333A33]">
@@ -201,13 +201,13 @@ export const Dashboard: React.FC = () => {
                       <Flame className="w-4 h-4 fill-current" />
                       <span>{featuredStats.currentStreak}</span>
                     </div>
-                    <span className="text-[11px] text-[#7A837A] dark:text-[#A0AAA0]">Day streak</span>
+                    <span className="text-[11px] text-[#5F6A5F] dark:text-[#A0AAA0]">Day streak</span>
                   </div>
                 </div>
 
                 {/* Last Session Meta */}
                 {featuredStats.lastSessionDate && (
-                  <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0] mb-4">
+                  <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0] mb-4">
                     Last session: {formatRelativeDate(featuredStats.lastSessionDate)} — {featuredStats.lastSessionMinutes ? formatMinutes(featuredStats.lastSessionMinutes) : ''}
                   </p>
                 )}
@@ -225,7 +225,7 @@ export const Dashboard: React.FC = () => {
 
                 <button
                   onClick={() => openLogModalWithSkill(featuredSkill.id)}
-                  className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  className="flex-1 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Log Session</span>
@@ -233,7 +233,7 @@ export const Dashboard: React.FC = () => {
 
                 <button
                   onClick={() => setSelectedSkillId(featuredSkill.id)}
-                  className="p-2 rounded-xl border border-[#DDDDD6] dark:border-[#333A33] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-[#7A837A] transition-colors cursor-pointer"
+                  className="p-2 rounded-xl border border-[#DDDDD6] dark:border-[#333A33] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] text-[#5F6A5F] transition-colors cursor-pointer"
                   title="View Skill Details"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -265,7 +265,7 @@ export const Dashboard: React.FC = () => {
                             {skill.name}
                           </h3>
                         </div>
-                        <ChevronRight className="w-3.5 h-3.5 text-[#7A837A] opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ChevronRight className="w-3.5 h-3.5 text-[#5F6A5F] opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
 
                       <div className="flex items-baseline justify-between mt-2">
@@ -278,7 +278,7 @@ export const Dashboard: React.FC = () => {
                             {stats.currentStreak}-day streak
                           </span>
                         ) : (
-                          <span className="text-[11px] text-[#7A837A]">
+                          <span className="text-[11px] text-[#5F6A5F]">
                             {stats?.totalSessions || 0} sessions
                           </span>
                         )}
@@ -288,7 +288,7 @@ export const Dashboard: React.FC = () => {
                     {/* Goal mini progress bar if set */}
                     {skill.goal && stats && stats.goalProgressPercent !== null && (
                       <div className="mt-3 pt-2 border-t border-[#E8E8E2] dark:border-[#262B26]">
-                        <div className="flex items-center justify-between text-[10px] text-[#7A837A] mb-1">
+                        <div className="flex items-center justify-between text-[10px] text-[#5F6A5F] mb-1">
                           <span>{skill.goal.type === 'weekly' ? 'Weekly goal' : 'Total goal'}</span>
                           <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                             {stats.goalProgressPercent}%
@@ -325,7 +325,7 @@ export const Dashboard: React.FC = () => {
               <h2 className="font-display font-semibold text-lg text-[#1A1D1A] dark:text-[#ECF0EC]">
                 Recent Sessions
               </h2>
-              <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0]">
+              <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
                 Latest practice notes & reflections
               </p>
             </div>
@@ -340,7 +340,7 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {recentSessions.length === 0 ? (
-            <div className="py-8 text-center text-xs text-[#7A837A]">
+            <div className="py-8 text-center text-xs text-[#5F6A5F]">
               No practice sessions recorded yet. Click "Log Session" to begin.
             </div>
           ) : (
@@ -379,7 +379,7 @@ export const Dashboard: React.FC = () => {
                         <span className="font-display font-bold text-xs text-[#1A1D1A] dark:text-[#ECF0EC] block">
                           {formatMinutes(session.durationMinutes)}
                         </span>
-                        <span className="text-[10px] text-[#7A837A] block">
+                        <span className="text-[10px] text-[#5F6A5F] block">
                           {formatRelativeDate(session.date)}
                         </span>
                       </div>
@@ -387,7 +387,7 @@ export const Dashboard: React.FC = () => {
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => openEditSessionModal(session)}
-                          className="p-1 rounded text-[#7A837A] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] cursor-pointer"
+                          className="p-1 rounded text-[#5F6A5F] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] cursor-pointer"
                           title="Edit Session"
                         >
                           <Edit2 className="w-3 h-3" />
@@ -398,7 +398,7 @@ export const Dashboard: React.FC = () => {
                               deleteSession(session.id);
                             }
                           }}
-                          className="p-1 rounded text-[#7A837A] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 cursor-pointer"
+                          className="p-1 rounded text-[#5F6A5F] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 cursor-pointer"
                           title="Delete Session"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -425,7 +425,7 @@ export const Dashboard: React.FC = () => {
             <button
               onClick={fetchAIInsights}
               disabled={isLoadingAI}
-              className="p-1.5 rounded-lg text-[#7A837A] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer disabled:opacity-50"
+              className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer disabled:opacity-50"
               title="Refresh AI Insights"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoadingAI ? 'animate-spin' : ''}`} />
@@ -435,7 +435,7 @@ export const Dashboard: React.FC = () => {
           {isLoadingAI ? (
             <div className="py-8 text-center">
               <Sparkles className="w-6 h-6 text-emerald-500 animate-spin mx-auto mb-2" />
-              <p className="text-xs text-[#7A837A]">Analyzing your practice logs with Gemini AI...</p>
+              <p className="text-xs text-[#5F6A5F]">Analyzing your practice logs with Gemini AI...</p>
             </div>
           ) : aiInsight ? (
             <div className="space-y-3.5 text-xs">
@@ -472,7 +472,7 @@ export const Dashboard: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="py-8 text-center text-xs text-[#7A837A]">
+            <div className="py-8 text-center text-xs text-[#5F6A5F]">
               Click the refresh icon to generate AI practice insights.
             </div>
           )}

@@ -95,10 +95,10 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
   if (!skill || !stats) {
     return (
       <div className="p-8 text-center">
-        <p className="text-sm text-[#7A837A]">Skill not found.</p>
+        <p className="text-sm text-[#5F6A5F]">Skill not found.</p>
         <button
           onClick={onBack}
-          className="mt-4 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-medium cursor-pointer"
+          className="mt-4 px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-medium cursor-pointer"
         >
           Return to Dashboard
         </button>
@@ -131,7 +131,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#7A837A] hover:text-[#1A1D1A] dark:hover:text-[#ECF0EC] transition-colors cursor-pointer group"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#5F6A5F] hover:text-[#1A1D1A] dark:hover:text-[#ECF0EC] transition-colors cursor-pointer group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span>Back to Dashboard</span>
@@ -166,7 +166,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
 
           <button
             onClick={() => openLogModalWithSkill(skill.id)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-semibold shadow-xs cursor-pointer active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-semibold shadow-xs cursor-pointer active:scale-95 transition-all"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Log Session</span>
@@ -187,7 +187,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                 {skill.name}
               </h1>
             </div>
-            <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0]">
+            <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
               Created on {new Date(skill.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </p>
           </div>
@@ -195,14 +195,14 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
           {/* Quick Metrics Badge Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-xl bg-[#F9F9F7] dark:bg-[#232823] border border-[#DDDDD6] dark:border-[#333A33]">
-              <span className="text-[11px] font-medium text-[#7A837A] dark:text-[#A0AAA0] block">Total Time</span>
+              <span className="text-[11px] font-medium text-[#5F6A5F] dark:text-[#A0AAA0] block">Total Time</span>
               <span className="font-display font-bold text-xl text-[#1A1D1A] dark:text-[#ECF0EC]">
                 {formatHoursDecimal(stats.totalMinutes)}
               </span>
             </div>
 
             <div className="p-3 rounded-xl bg-[#F9F9F7] dark:bg-[#232823] border border-[#DDDDD6] dark:border-[#333A33]">
-              <span className="text-[11px] font-medium text-[#7A837A] dark:text-[#A0AAA0] block">Current Streak</span>
+              <span className="text-[11px] font-medium text-[#5F6A5F] dark:text-[#A0AAA0] block">Current Streak</span>
               <div className="flex items-center gap-1 font-display font-bold text-xl text-amber-600 dark:text-amber-400">
                 <Flame className="w-5 h-5 fill-current" />
                 <span>{stats.currentStreak}d</span>
@@ -210,14 +210,14 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
             </div>
 
             <div className="p-3 rounded-xl bg-[#F9F9F7] dark:bg-[#232823] border border-[#DDDDD6] dark:border-[#333A33]">
-              <span className="text-[11px] font-medium text-[#7A837A] dark:text-[#A0AAA0] block">Best Streak</span>
+              <span className="text-[11px] font-medium text-[#5F6A5F] dark:text-[#A0AAA0] block">Best Streak</span>
               <span className="font-display font-bold text-xl text-[#1A1D1A] dark:text-[#ECF0EC]">
                 {stats.longestStreak} days
               </span>
             </div>
 
             <div className="p-3 rounded-xl bg-[#F9F9F7] dark:bg-[#232823] border border-[#DDDDD6] dark:border-[#333A33]">
-              <span className="text-[11px] font-medium text-[#7A837A] dark:text-[#A0AAA0] block">Avg Session</span>
+              <span className="text-[11px] font-medium text-[#5F6A5F] dark:text-[#A0AAA0] block">Avg Session</span>
               <span className="font-display font-bold text-xl text-[#1A1D1A] dark:text-[#ECF0EC]">
                 {formatMinutes(averageMinutes)}
               </span>
@@ -245,7 +245,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                     ? `${formatHoursDecimal(stats.weeklyMinutes)} / ${skill.goal.targetHours}h this week`
                     : `${formatHoursDecimal(stats.totalMinutes)} / ${skill.goal.targetHours}h total`}
                 </p>
-                <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0]">
+                <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
                   {stats.goalProgressPercent && stats.goalProgressPercent >= 100
                     ? 'Goal accomplished! Excellent work.'
                     : `${Math.round(100 - (stats.goalProgressPercent || 0))}% remaining`}
@@ -255,7 +255,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
 
             {/* Weekly Hours Trend mini bar chart */}
             <div className="w-full sm:w-64">
-              <span className="text-[11px] font-semibold text-[#7A837A] dark:text-[#A0AAA0] block mb-2">
+              <span className="text-[11px] font-semibold text-[#5F6A5F] dark:text-[#A0AAA0] block mb-2">
                 Recent 6 Weeks Trend (Hours)
               </span>
               <div className="flex items-end gap-2 h-14">
@@ -269,7 +269,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                       }}
                       title={`${w.weekLabel}: ${w.hours}h`}
                     />
-                    <span className="text-[9px] text-[#7A837A] truncate max-w-[36px]">
+                    <span className="text-[9px] text-[#5F6A5F] truncate max-w-[36px]">
                       {w.weekLabel}
                     </span>
                   </div>
@@ -290,14 +290,14 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
             <h2 className="font-display font-semibold text-xl text-[#1A1D1A] dark:text-[#ECF0EC]">
               Practice Journal History
             </h2>
-            <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0] mt-0.5">
+            <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0] mt-0.5">
               {skillSessions.length} total sessions logged
             </p>
           </div>
 
           {/* Search bar */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#7A837A]" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#5F6A5F]" />
             <input
               type="text"
               value={searchQuery}
@@ -310,16 +310,16 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
 
         {filteredSessions.length === 0 ? (
           <div className="py-12 text-center">
-            <Clock className="w-8 h-8 text-[#7A837A] mx-auto mb-2 opacity-50" />
+            <Clock className="w-8 h-8 text-[#5F6A5F] mx-auto mb-2 opacity-50" />
             <p className="text-sm font-medium text-[#1A1D1A] dark:text-[#ECF0EC]">
               {searchQuery ? 'No matching practice sessions found.' : 'No practice sessions logged yet.'}
             </p>
-            <p className="text-xs text-[#7A837A] mt-1">
+            <p className="text-xs text-[#5F6A5F] mt-1">
               Start practicing and record your first session!
             </p>
             <button
               onClick={() => openLogModalWithSkill(skillId)}
-              className="mt-4 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold cursor-pointer"
+              className="mt-4 px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
             >
               Log First Session
             </button>
@@ -337,7 +337,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                       <span className="font-display font-bold text-sm text-emerald-700 dark:text-emerald-400">
                         {formatMinutes(session.durationMinutes)}
                       </span>
-                      <span className="text-xs text-[#7A837A] dark:text-[#A0AAA0]">
+                      <span className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
                         • {formatFullDate(session.date)}
                       </span>
                     </div>
@@ -353,7 +353,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => openEditSessionModal(session)}
-                      className="p-1.5 rounded-lg text-[#7A837A] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] hover:text-[#1A1D1A] transition-colors cursor-pointer"
                       title="Edit Session"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -364,7 +364,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
                           deleteSession(session.id);
                         }
                       }}
-                      className="p-1.5 rounded-lg text-[#7A837A] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#5F6A5F] hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 transition-colors cursor-pointer"
                       title="Delete Session"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

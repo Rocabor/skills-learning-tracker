@@ -20,7 +20,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
       {/* Top Simple Landing Nav */}
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 dark:bg-emerald-500 flex items-center justify-center text-white shadow-sm shadow-emerald-600/20">
+          <div className="w-8 h-8 rounded-lg bg-emerald-700 dark:bg-emerald-500 flex items-center justify-center text-white shadow-sm shadow-emerald-600/20">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2v4" />
               <path d="m4.93 4.93 2.83 2.83" />
@@ -47,7 +47,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
           </button>
           <button
             onClick={enterGuestMode}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs sm:text-sm font-semibold shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4" />
             <span>Try as Guest</span>
@@ -74,7 +74,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <button
             onClick={enterGuestMode}
-            className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-semibold text-sm sm:text-base shadow-lg shadow-emerald-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer group"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-semibold text-sm sm:text-base shadow-lg shadow-emerald-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer group"
           >
             <Sparkles className="w-5 h-5 text-emerald-200" />
             <span>Explore Demo (Guest Mode)</span>
@@ -93,7 +93,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         <div className="mt-14 relative rounded-2xl border border-[#DDDDD6] dark:border-[#333A33] bg-white dark:bg-[#1C201C] p-4 sm:p-6 shadow-2xl overflow-hidden max-w-4xl mx-auto text-left">
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#DDDDD6] dark:border-[#262B26]">
             <div>
-              <p className="text-xs text-[#7A837A] dark:text-[#A0AAA0]">Interactive Preview</p>
+              <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">Interactive Preview</p>
               <h2 className="font-display font-bold text-lg text-[#1A1D1A] dark:text-[#ECF0EC]">
                 Good afternoon, Jordan • 3 skills practiced today
               </h2>
@@ -116,7 +116,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
                   <span className="font-display font-extrabold text-2xl text-[#1A1D1A] dark:text-[#ECF0EC]">
                     47.5h
                   </span>
-                  <p className="text-[11px] text-[#7A837A]">Total Practice</p>
+                  <p className="text-[11px] text-[#5F6A5F]">Total Practice</p>
                 </div>
                 <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-display font-bold text-lg">
                   <Flame className="w-4 h-4 fill-current" />
@@ -162,7 +162,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
           <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#1A1D1A] dark:text-[#ECF0EC]">
             Engineered for consistent progress
           </h2>
-          <p className="text-xs sm:text-sm text-[#7A837A] dark:text-[#A0AAA0] mt-2">
+          <p className="text-xs sm:text-sm text-[#5F6A5F] dark:text-[#A0AAA0] mt-2">
             Everything you need to turn sporadic practice into lifetime mastery.
           </p>
         </div>
