@@ -177,6 +177,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="auth-modal-title"
     >
       <div className="fixed inset-0" onClick={onClose} />
       <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-[#1C201C] border border-[#DDDDD6] dark:border-[#333A33] shadow-2xl p-6 text-[#1A1D1A] dark:text-[#ECF0EC] z-10">
@@ -188,7 +189,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <KeyRound className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-display font-bold text-lg text-[#1A1D1A] dark:text-[#ECF0EC]">
+              <h2 id="auth-modal-title" className="font-display font-bold text-lg text-[#1A1D1A] dark:text-[#ECF0EC]">
                 {isForgot ? 'Reset Password' : isSignup ? 'Create Your Account' : 'Sign In'}
               </h2>
               <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
