@@ -77,6 +77,7 @@ export async function getDb(): Promise<SqlDatabase> {
       name TEXT NOT NULL,
       category TEXT NOT NULL,
       color TEXT NOT NULL,
+      goal_type TEXT,
       target_hours INTEGER NOT NULL DEFAULT 50,
       icon TEXT,
       created_at TEXT NOT NULL,
@@ -126,6 +127,14 @@ export async function getDb(): Promise<SqlDatabase> {
   if (!sessionCols.includes('updated_at')) {
     await exec('ALTER TABLE sessions ADD COLUMN updated_at TEXT');
     await exec('UPDATE sessions SET updated_at = created_at WHERE updated_at IS NULL');
+  }
+
+  // Migrate older databases: persist goal type. Existing rows stored hours with
+  // an implicit 'total' goal, so backfill those; rows with no hours stay goal-less.
+  const skillCols = await tableColumns('skills');
+  if (!skillCols.includes('goal_type')) {
+    await exec('ALTER TABLE skills ADD COLUMN goal_type TEXT');
+    await exec("UPDATE skills SET goal_type = 'total' WHERE goal_type IS NULL AND target_hours > 0");
   }
 
   dbInstance = {

@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { z } from 'zod';
 import { GoogleGenAI } from '@google/genai';
 import { getDb } from './db.js';
+import { deliverResetCode } from './email.js';
 import { generateToken, requireAuth } from './auth.js';
 import type { AuthRequest } from './auth.js';
 
@@ -78,6 +79,7 @@ const ServerSkillSchema = z.object({
       type: z.enum(['total', 'weekly']),
       targetHours: z.number().positive(),
     })
+    .nullable()
     .optional(),
 });
 
@@ -101,6 +103,24 @@ const ServerSessionSchema = ServerSessionBaseSchema.refine(notInFuture, {
 const ServerSessionUpdateSchema = ServerSessionBaseSchema.partial().refine(notInFuture, {
   message: 'Date cannot be in the future',
   path: ['date'],
+});
+
+const ServerSyncSkillSchema = ServerSkillSchema.extend({
+  id: z.string().min(1).optional(),
+  createdAt: z.string().optional(),
+});
+
+const ServerSyncSessionSchema = ServerSessionBaseSchema.extend({
+  id: z.string().min(1).optional(),
+  createdAt: z.string().optional(),
+}).refine(notInFuture, {
+  message: 'Date cannot be in the future',
+  path: ['date'],
+});
+
+const ServerBatchSyncSchema = z.object({
+  skills: z.array(ServerSyncSkillSchema).max(200).optional(),
+  sessions: z.array(ServerSyncSessionSchema).max(2000).optional(),
 });
 
 // ----------------------------------------------------
@@ -129,6 +149,7 @@ interface SkillRow {
   name: string;
   category: string;
   color: string;
+  goal_type: string | null;
   target_hours: number;
   icon: string | null;
   created_at: string;
@@ -242,9 +263,9 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // Request a password reset code
-// No email/SMTP service is configured in this environment, so the 6-digit code is
-// returned to the client (development mode). A production deploy would deliver it
-// via email instead.
+// The 6-digit code is delivered by email through a trusted provider in
+// production. Outside of production it is also returned to the client as
+// devCode (console channel) so local development can complete the flow.
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const parseResult = ServerForgotPasswordSchema.safeParse(req.body);
@@ -276,12 +297,24 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       ['reset_' + crypto.randomUUID(), user.id, code, expiresAt, now],
     );
 
-    console.log(`[password-reset] code for ${cleanEmail}: ${code}`);
+    // Deliver the code via a trusted email provider in production.
+    const delivery = await deliverResetCode(cleanEmail, code);
 
-    res.json({
-      message: `A 6-digit reset code has been generated for ${cleanEmail}.`,
-      devCode: code,
-    });
+    // devCode is only exposed outside of production, so the endpoint cannot be
+    // used to take over accounts in production without email access.
+    const isDev = process.env.NODE_ENV !== 'production';
+    const payload: Record<string, string> = {
+      message: delivery.delivered
+        ? 'If an account exists for that email, a reset code has been sent.'
+        : 'If an account exists for that email, a reset code has been generated.',
+    };
+
+    if (isDev && delivery.channel === 'console') {
+      payload.message = `A 6-digit reset code has been generated for ${cleanEmail}.`;
+      payload.devCode = code;
+    }
+
+    res.json(payload);
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'Failed to request password reset' });
@@ -394,7 +427,9 @@ app.get('/api/skills', requireAuth, async (req: AuthRequest, res) => {
       id: r.id,
       name: r.name,
       color: r.color,
-      goal: r.target_hours ? { type: 'total', targetHours: r.target_hours } : null,
+      goal: r.goal_type
+        ? { type: r.goal_type as 'total' | 'weekly', targetHours: r.target_hours }
+        : null,
       createdAt: r.created_at,
       userId: r.user_id,
     }));
@@ -417,19 +452,20 @@ app.post('/api/skills', requireAuth, async (req: AuthRequest, res) => {
 
     const skillId = 'skill_' + crypto.randomUUID();
     const now = new Date().toISOString();
-    const targetHours = goal?.targetHours || 50;
+    const goalType = goal?.type ?? null;
+    const targetHours = goal?.targetHours ?? 0;
 
     const db = await getDb();
     await db.run(
-      'INSERT INTO skills (id, user_id, name, category, color, target_hours, icon, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [skillId, req.user!.id, name, 'General', color || '#6366f1', targetHours, null, now, now],
+      'INSERT INTO skills (id, user_id, name, category, color, goal_type, target_hours, icon, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [skillId, req.user!.id, name, 'General', color || '#6366f1', goalType, targetHours, null, now, now],
     );
 
     const newSkill = {
       id: skillId,
       name,
       color: color || '#6366f1',
-      goal: goal || { type: 'total', targetHours },
+      goal: goalType ? { type: goalType as 'total' | 'weekly', targetHours } : null,
       createdAt: now,
       userId: req.user!.id,
     };
@@ -461,11 +497,12 @@ app.put('/api/skills/:id', requireAuth, async (req: AuthRequest, res) => {
     }
 
     const now = new Date().toISOString();
-    const targetHours = goal?.targetHours !== undefined ? goal.targetHours : skill.target_hours;
+    const goalType = goal === undefined ? skill.goal_type : (goal?.type ?? null);
+    const targetHours = goal === undefined ? skill.target_hours : (goal?.targetHours ?? 0);
 
     await db.run(
-      'UPDATE skills SET name = ?, color = ?, target_hours = ?, updated_at = ? WHERE id = ? AND user_id = ?',
-      [name ?? skill.name, color || skill.color, targetHours, now, id, req.user!.id],
+      'UPDATE skills SET name = ?, color = ?, goal_type = ?, target_hours = ?, updated_at = ? WHERE id = ? AND user_id = ?',
+      [name ?? skill.name, color || skill.color, goalType, targetHours, now, id, req.user!.id],
     );
 
     res.json({
@@ -473,7 +510,7 @@ app.put('/api/skills/:id', requireAuth, async (req: AuthRequest, res) => {
         id,
         name: name ?? skill.name,
         color: color || skill.color,
-        goal: { type: 'total', targetHours },
+        goal: goalType ? { type: goalType as 'total' | 'weekly', targetHours } : null,
         createdAt: skill.created_at,
         userId: req.user!.id,
       },
@@ -665,23 +702,77 @@ app.delete('/api/sessions/:id', requireAuth, async (req: AuthRequest, res) => {
 // Batch sync endpoint (allows migrating guest or local data into cloud account)
 app.post('/api/sync/batch', requireAuth, async (req: AuthRequest, res) => {
   try {
-    const { skills, sessions } = req.body;
+    const parseResult = ServerBatchSyncSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: parseResult.error.issues[0]?.message ?? 'Invalid sync payload',
+      });
+    }
+
+    const { skills, sessions } = parseResult.data;
     const db = await getDb();
     const userId = req.user!.id;
     const now = new Date().toISOString();
 
-    if (Array.isArray(skills)) {
+    const ownedSkillIds = new Set<string>();
+
+    if (skills && skills.length > 0) {
+      // Refuse to overwrite records owned by another user via REPLACE
       for (const s of skills) {
-        const targetHours = s.goal?.targetHours || 50;
+        if (!s.id) continue;
+        const existing = await db.get<Pick<SkillRow, 'user_id'>>(
+          'SELECT user_id FROM skills WHERE id = ?',
+          s.id,
+        );
+        if (existing && existing.user_id !== userId) {
+          return res.status(403).json({
+            error: `Skill "${s.name}" belongs to another user and cannot be overwritten`,
+          });
+        }
+      }
+
+      for (const s of skills) {
+        const goalType = s.goal?.type ?? null;
+        const targetHours = s.goal?.targetHours ?? 0;
+        const skillId = s.id || 'skill_' + crypto.randomUUID();
+        ownedSkillIds.add(skillId);
         await db.run(
-          `INSERT OR REPLACE INTO skills (id, user_id, name, category, color, target_hours, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [s.id || 'skill_' + crypto.randomUUID(), userId, s.name, 'General', s.color || '#6366f1', targetHours, s.createdAt || now, now],
+          `INSERT OR REPLACE INTO skills (id, user_id, name, category, color, goal_type, target_hours, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [skillId, userId, s.name, 'General', s.color || '#6366f1', goalType, targetHours, s.createdAt || now, now],
         );
       }
     }
 
-    if (Array.isArray(sessions)) {
+    if (sessions && sessions.length > 0) {
+      // Resolve skill ownership: ids from this batch plus all skills this user
+      // already owns, so sessions may reference any of them.
+      const owned = await db.all<Pick<SkillRow, 'id'>>(
+        'SELECT id FROM skills WHERE user_id = ?',
+        userId,
+      );
+      for (const r of owned) ownedSkillIds.add(r.id);
+
+      // Verify each session references a skill owned by this user
+      for (const sess of sessions) {
+        if (!ownedSkillIds.has(sess.skillId)) {
+          return res.status(400).json({
+            error: 'Session references a skill that does not exist or belongs to another user',
+          });
+        }
+        if (sess.id) {
+          const existing = await db.get<Pick<SessionRow, 'user_id'>>(
+            'SELECT user_id FROM sessions WHERE id = ?',
+            sess.id,
+          );
+          if (existing && existing.user_id !== userId) {
+            return res.status(403).json({
+              error: 'Session record belongs to another user and cannot be overwritten',
+            });
+          }
+        }
+      }
+
       for (const sess of sessions) {
         await db.run(
           `INSERT OR REPLACE INTO sessions (id, user_id, skill_id, duration_minutes, date, notes, created_at)
