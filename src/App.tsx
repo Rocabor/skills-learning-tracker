@@ -107,7 +107,7 @@ const MainAppContent: React.FC = () => {
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-white dark:bg-[#1C201C] border border-emerald-500/30 text-[#1A1D1A] dark:text-[#ECF0EC] shadow-xl text-xs font-semibold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>{toastMessage}</span>
           </div>
         </div>

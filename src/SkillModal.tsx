@@ -153,7 +153,7 @@ export const SkillModal: React.FC = () => {
                   title={c.name}
                   aria-label={`Select ${c.name} color`}
                 >
-                  {color === c.hex && <Check className="w-4 h-4 text-white stroke-[3]" />}
+                  {color === c.hex && <Check className="w-4 h-4 text-white stroke-3" />}
                 </button>
               ))}
             </div>
