@@ -1,5 +1,6 @@
-import React from 'react';
-import { useApp } from '../context/AppContext';
+import React, { useRef } from 'react';
+import { usePreferences } from '../context/PreferencesContext';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { X, Eye, Zap, Keyboard } from 'lucide-react';
 import { Switch } from './Switch';
 
@@ -9,17 +10,17 @@ interface AccessibilityDialogProps {
 }
 
 export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen, onClose }) => {
-  const {
-    reducedMotion,
-    setReducedMotion,
-    highContrast,
-    setHighContrast
-  } = useApp();
+  const { reducedMotion, setReducedMotion, highContrast, setHighContrast } = usePreferences();
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, isOpen);
 
   if (!isOpen) return null;
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
@@ -35,6 +36,7 @@ export const AccessibilityDialog: React.FC<AccessibilityDialogProps> = ({ isOpen
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>

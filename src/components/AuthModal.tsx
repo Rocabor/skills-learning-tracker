@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useApp } from '../context/AppContext';
+import { useData } from '../context/DataContext';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { X, Mail, Lock, User as UserIcon, ArrowRight, Sparkles, Loader2, ShieldCheck, Users, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { RegisterSchema, LoginSchema, ForgotPasswordSchema, ResetPasswordSchema } from '../utils/validators';
 import { apiGetProfiles, apiRequestPasswordReset, apiResetPassword } from '../api/client';
@@ -12,7 +13,7 @@ interface AuthModalProps {
 type View = 'login' | 'signup' | 'forgot';
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { login, signup, enterGuestMode } = useApp();
+  const { login, signup, enterGuestMode } = useData();
   const [view, setView] = useState<View>('login');
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -20,6 +21,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recentProfiles, setRecentProfiles] = useState<{ email: string; name: string }[]>([]);
@@ -30,12 +32,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [newPassword, setNewPassword] = useState('');
 
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, isOpen);
+
+  const resolveErrorField = (issuePath: PropertyKey | undefined) => {
+    const AUTH_FIELD_MAP: Record<string, string> = {
+      email: 'auth-email',
+      password: 'auth-password',
+      name: 'auth-display-name',
+      code: 'auth-reset-code',
+      newPassword: 'auth-new-password',
+    };
+    return AUTH_FIELD_MAP[String(issuePath)] ?? null;
+  };
 
   // Fetch local profiles on modal open
   useEffect(() => {
     if (isOpen) {
-      apiGetProfiles().then(setRecentProfiles);
+      // Non-blocking: a failed lookup keeps the selector empty, never an
+      // unhandled rejection.
+      apiGetProfiles()
+        .then(setRecentProfiles)
+        .catch((err) => {
+          console.error('Error loading recent profiles:', err);
+          setRecentProfiles([]);
+        });
       setErrorMessage(null);
+      setErrorField(null);
       setSuccessMessage(null);
       setPassword('');
       setConfirmPassword('');
@@ -54,12 +78,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setEmail(selectedEmail);
     setView('login');
     setErrorMessage(null);
+    setErrorField(null);
     setPassword('');
   };
 
   const switchView = (next: View) => {
     setView(next);
     setErrorMessage(null);
+    setErrorField(null);
     setSuccessMessage(null);
     setPassword('');
     setConfirmPassword('');
@@ -71,10 +97,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setErrorField(null);
 
     const result = LoginSchema.safeParse({ email, password });
     if (!result.success) {
       setErrorMessage(result.error.issues[0]?.message || 'Invalid credentials');
+      setErrorField(resolveErrorField(result.error.issues[0]?.path[0]));
       return;
     }
 
@@ -92,15 +120,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setErrorField(null);
 
     const result = RegisterSchema.safeParse({ email, name: displayName || undefined, password });
     if (!result.success) {
       setErrorMessage(result.error.issues[0]?.message || 'Please check your inputs');
+      setErrorField(resolveErrorField(result.error.issues[0]?.path[0]));
       return;
     }
 
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
+      setErrorField('auth-confirm-password');
       return;
     }
 
@@ -118,10 +149,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setErrorField(null);
 
     const result = ForgotPasswordSchema.safeParse({ email });
     if (!result.success) {
       setErrorMessage(result.error.issues[0]?.message || 'Please enter a valid email');
+      setErrorField(result.error.issues[0]?.path[0] === 'email' ? 'auth-forgot-email' : null);
       return;
     }
 
@@ -146,11 +179,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setErrorField(null);
     setSuccessMessage(null);
 
     const result = ResetPasswordSchema.safeParse({ email, code: resetCode, newPassword });
     if (!result.success) {
       setErrorMessage(result.error.issues[0]?.message || 'Please check the code and password');
+      setErrorField(resolveErrorField(result.error.issues[0]?.path[0]));
       return;
     }
 
@@ -174,6 +209,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
@@ -202,6 +238,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
@@ -234,7 +271,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         )}
 
         {errorMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-800 flex items-start gap-2">
+          <div id="auth-form-error" role="alert" className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-800 flex items-start gap-2">
             <span className="font-semibold">Error:</span>
             <span>{errorMessage}</span>
           </div>
@@ -263,18 +300,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             {!resetDevCode ? (
               <form onSubmit={handleForgotSubmit} noValidate className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+                  <label htmlFor="auth-forgot-email" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                     Email
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                     <input
                       ref={emailInputRef}
+                      id="auth-forgot-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      aria-describedby={errorField === 'auth-forgot-email' ? 'auth-form-error' : undefined}
                       required
                       autoCapitalize="none"
                       autoCorrect="off"
@@ -299,31 +338,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             ) : (
               <form onSubmit={handleResetSubmit} noValidate className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+                  <label htmlFor="auth-reset-code" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                     Reset Code
                   </label>
                   <input
+                    id="auth-reset-code"
                     type="text"
                     inputMode="numeric"
                     value={resetCode}
                     onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="6-digit code"
                     className="w-full text-sm font-mono tracking-widest rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    aria-describedby={errorField === 'auth-reset-code' ? 'auth-form-error' : undefined}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+                  <label htmlFor="auth-new-password" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                     New Password
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                     <input
+                      id="auth-new-password"
                       type={showPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="At least 6 characters"
                       className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      aria-describedby={errorField === 'auth-new-password' ? 'auth-form-error' : undefined}
                       required
                     />
                     <button
@@ -360,18 +403,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             className="space-y-4"
           >
             <div>
-              <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+              <label htmlFor="auth-email" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                 Email
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                 <input
                   ref={emailInputRef}
+                  id="auth-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  aria-describedby={errorField === 'auth-email' ? 'auth-form-error' : undefined}
                   required
                   autoCapitalize="none"
                   autoCorrect="off"
@@ -381,34 +426,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
             {isSignup && (
               <div>
-                <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+                <label htmlFor="auth-display-name" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                   Display Name (Optional)
                 </label>
                 <div className="relative">
                   <UserIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                   <input
+                    id="auth-display-name"
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="e.g. Alex Vance"
                     className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    aria-describedby={errorField === 'auth-display-name' ? 'auth-form-error' : undefined}
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+              <label htmlFor="auth-password" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                 Password
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                 <input
+                  id="auth-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={isSignup ? 'At least 6 characters' : 'Your password'}
                   className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  aria-describedby={errorField === 'auth-password' ? 'auth-form-error' : undefined}
                   required
                 />
                 <button
@@ -423,17 +472,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
             {isSignup ? (
               <div>
-                <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+                <label htmlFor="auth-confirm-password" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
                   Confirm Password
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F6A5F] dark:text-[#A0AAA0]" />
                   <input
+                    id="auth-confirm-password"
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter your password"
                     className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    aria-describedby={errorField === 'auth-confirm-password' ? 'auth-form-error' : undefined}
                     required
                   />
                 </div>

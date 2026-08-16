@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useApp } from '../context/AppContext';
+import { useData } from '../context/DataContext';
 import type { HeatmapDay, Skill } from '../types';
 import { getTodayDateString, formatMinutes, formatFullDate } from '../utils/dateUtils';
 import { Table as TableIcon, Grid as GridIcon } from 'lucide-react';
@@ -13,7 +13,7 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
   filteredSkillId,
   weeksCount = 18,
 }) => {
-  const { sessions, skills } = useApp();
+  const { sessions, skills } = useData();
   const [selectedFilter, setSelectedFilter] = useState<string>(filteredSkillId || 'all');
   const [hoveredDay, setHoveredDay] = useState<HeatmapDay | null>(null);
   const [activeDayModal, setActiveDayModal] = useState<HeatmapDay | null>(null);

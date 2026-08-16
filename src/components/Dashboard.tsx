@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useData } from '../context/DataContext';
+import { useModal } from '../context/ModalContext';
+import { useTimer } from '../context/TimerContext';
+import { useInsights } from '../context/InsightsContext';
+import { usePreferences } from '../context/PreferencesContext';
 import type { Skill } from '../types';
 import { ProgressRing } from './ProgressRing';
 import { HeatmapCalendar } from './HeatmapCalendar';
@@ -23,19 +27,19 @@ export const Dashboard: React.FC = () => {
     sessions,
     skillStatsMap,
     overallStats,
+    deleteSession,
+    loadStarterPack,
+    resetToSampleData,
+  } = useData();
+  const {
     openLogModalWithSkill,
     openAddSkillModal,
     openEditSessionModal,
-    deleteSession,
     setSelectedSkillId,
-    startTimer,
-    aiInsight,
-    isLoadingAI,
-    fetchAIInsights,
-    reducedMotion,
-    loadStarterPack,
-    resetToSampleData
-  } = useApp();
+  } = useModal();
+  const { startTimer } = useTimer();
+  const { aiInsight, isLoadingAI, fetchAIInsights } = useInsights();
+  const { reducedMotion } = usePreferences();
 
   const [greeting, setGreeting] = useState('Good day');
 
@@ -159,11 +163,17 @@ export const Dashboard: React.FC = () => {
                   />
                 </div>
 
-                <h2
-                  onClick={() => setSelectedSkillId(featuredSkill.id)}
-                  className="font-display font-bold text-2xl sm:text-3xl text-[#1A1D1A] dark:text-[#ECF0EC] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
-                >
-                  {featuredSkill.name}
+                <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#1A1D1A] dark:text-[#ECF0EC]">
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setSelectedSkillId(featuredSkill.id);
+                    }}
+                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+                  >
+                    {featuredSkill.name}
+                  </a>
                 </h2>
 
                 {/* Progress Ring */}
@@ -251,8 +261,17 @@ export const Dashboard: React.FC = () => {
                 return (
                   <div
                     key={skill.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setSelectedSkillId(skill.id)}
-                    className="bg-white dark:bg-[#1C201C] rounded-2xl border border-[#DDDDD6] dark:border-[#333A33] p-4 shadow-sm hover:border-emerald-500/40 transition-all cursor-pointer group flex flex-col justify-between"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedSkillId(skill.id);
+                      }
+                    }}
+                    aria-label={`${skill.name}: view skill details`}
+                    className="bg-white dark:bg-[#1C201C] rounded-2xl border border-[#DDDDD6] dark:border-[#333A33] p-4 shadow-sm hover:border-emerald-500/40 transition-all cursor-pointer group flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-1.5">

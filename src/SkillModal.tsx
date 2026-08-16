@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useApp } from './context/AppContext';
+import React, { useState, useEffect, useRef } from 'react';
+import { useData } from './context/DataContext';
+import { useModal } from './context/ModalContext';
+import { useFocusTrap } from './hooks/useFocusTrap';
 import { CURATED_COLOR_PALETTE } from './data/sampleData';
 import type { SkillGoal } from './types';
 import { SkillFormSchema } from './utils/validators';
 import { X, Trash2, Check } from 'lucide-react';
 
 export const SkillModal: React.FC = () => {
-  const {
-    isSkillModalOpen,
-    editingSkill,
-    addSkill,
-    updateSkill,
-    deleteSkill,
-    closeModals
-  } = useApp();
+  const { addSkill, updateSkill, deleteSkill } = useData();
+  const { isSkillModalOpen, editingSkill, closeModals } = useModal();
 
   const [name, setName] = useState('');
   const [color, setColor] = useState('#059669');
   const [goalType, setGoalType] = useState<SkillGoal['type'] | 'none'>('weekly');
   const [targetHours, setTargetHours] = useState('5');
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<string | null>(null);
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, isSkillModalOpen);
 
   useEffect(() => {
     if (!isSkillModalOpen) return;
@@ -41,6 +42,7 @@ export const SkillModal: React.FC = () => {
       setTargetHours('5');
     }
     setError(null);
+    setErrorField(null);
   }, [isSkillModalOpen, editingSkill]);
 
   if (!isSkillModalOpen) return null;
@@ -54,6 +56,7 @@ export const SkillModal: React.FC = () => {
     });
     if (!result.success) {
       setError(result.error.issues[0].message);
+      setErrorField(String(result.error.issues[0].path[0]) === 'targetHours' ? 'skill-target-hours' : 'skill-name');
       return;
     }
 
@@ -92,6 +95,7 @@ export const SkillModal: React.FC = () => {
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
@@ -107,6 +111,7 @@ export const SkillModal: React.FC = () => {
           <button
             onClick={closeModals}
             className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] transition-colors cursor-pointer"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
@@ -114,22 +119,24 @@ export const SkillModal: React.FC = () => {
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           {error && (
-            <div className="p-2.5 text-xs text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-800">
+            <div id="skill-form-error" role="alert" className="p-2.5 text-xs text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-800">
               {error}
             </div>
           )}
 
           {/* Skill Name */}
           <div>
-            <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+            <label htmlFor="skill-name" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
               Skill Name <span className="text-red-500">*</span>
             </label>
             <input
+              id="skill-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Spanish, Guitar, Rust, Photography"
               className="w-full text-sm font-medium rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              aria-describedby={errorField === 'skill-name' ? 'skill-form-error' : undefined}
               required
               autoFocus
             />
@@ -203,12 +210,14 @@ export const SkillModal: React.FC = () => {
             {goalType !== 'none' && (
               <div className="mt-2.5 flex items-center gap-2">
                 <input
+                  id="skill-target-hours"
                   type="number"
                   min="0.5"
                   step="0.5"
                   value={targetHours}
                   onChange={(e) => setTargetHours(e.target.value)}
                   className="w-24 text-sm font-medium rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  aria-describedby={errorField === 'skill-target-hours' ? 'skill-form-error' : undefined}
                 />
                 <span className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
                   {goalType === 'weekly' ? 'hours per week target' : 'total lifetime hours target'}

@@ -1,28 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useApp } from '../context/AppContext';
+import { useData } from '../context/DataContext';
+import { useModal } from '../context/ModalContext';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { parseFlexibleDuration, getTodayDateString } from '../utils/dateUtils';
 import { SessionFormSchema } from '../utils/validators';
 import { X, Clock, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
 
 export const LogSessionModal: React.FC = () => {
-  const {
-    isLogModalOpen,
-    logModalDefaultSkillId,
-    editingSession,
-    skills,
-    sessions,
-    addSession,
-    updateSession,
-    closeModals
-  } = useApp();
+  const { skills, sessions, addSession, updateSession } = useData();
+  const { isLogModalOpen, logModalDefaultSkillId, editingSession, closeModals } = useModal();
 
   const [skillId, setSkillId] = useState<string>('');
   const [durationInput, setDurationInput] = useState<string>('45');
   const [date, setDate] = useState<string>(getTodayDateString());
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<string | null>(null);
 
   const durationInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, isLogModalOpen);
 
   // Initialize form state when opened
   useEffect(() => {
@@ -47,6 +45,7 @@ export const LogSessionModal: React.FC = () => {
       setNotes('');
     }
     setError(null);
+    setErrorField(null);
 
     setTimeout(() => {
       durationInputRef.current?.focus();
@@ -65,7 +64,14 @@ export const LogSessionModal: React.FC = () => {
       notes: notes.trim() || null
     });
     if (!result.success) {
+      const SESSION_FIELD_MAP: Record<string, string> = {
+        skillId: 'log-session-skill',
+        durationMinutes: 'log-session-duration',
+        date: 'log-session-date',
+        notes: 'log-session-notes',
+      };
       setError(result.error.issues[0].message);
+      setErrorField(SESSION_FIELD_MAP[String(result.error.issues[0].path[0])] ?? null);
       return;
     }
 
@@ -100,12 +106,14 @@ export const LogSessionModal: React.FC = () => {
   const setPresetDuration = (preset: string) => {
     setDurationInput(preset);
     setError(null);
+    setErrorField(null);
   };
 
   const selectedSkill = skills.find((s) => s.id === skillId);
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
@@ -139,7 +147,7 @@ export const LogSessionModal: React.FC = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 text-xs text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-800">
+            <div id="log-session-form-error" role="alert" className="flex items-center gap-2 p-3 text-xs text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-800">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
@@ -147,13 +155,15 @@ export const LogSessionModal: React.FC = () => {
 
           {/* Skill Selector */}
           <div>
-            <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+            <label htmlFor="log-session-skill" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
               Skill <span className="text-red-500">*</span>
             </label>
             <select
+              id="log-session-skill"
               value={skillId}
               onChange={(e) => setSkillId(e.target.value)}
               className="w-full text-sm font-medium rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+              aria-describedby={errorField === 'log-session-skill' ? 'log-session-form-error' : undefined}
               required
             >
               {skills.map((s) => (
@@ -167,7 +177,7 @@ export const LogSessionModal: React.FC = () => {
           {/* Duration Input & Quick Presets */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0]">
+              <label htmlFor="log-session-duration" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0]">
                 Duration <span className="text-red-500">*</span>
               </label>
               <span className="text-[11px] text-[#5F6A5F] dark:text-[#A0AAA0]">
@@ -180,11 +190,13 @@ export const LogSessionModal: React.FC = () => {
               </div>
               <input
                 ref={durationInputRef}
+                id="log-session-duration"
                 type="text"
                 value={durationInput}
                 onChange={(e) => setDurationInput(e.target.value)}
                 placeholder="45 or 1h 30m"
                 className="w-full text-sm font-medium rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                aria-describedby={errorField === 'log-session-duration' ? 'log-session-form-error' : undefined}
                 required
               />
             </div>
@@ -206,7 +218,7 @@ export const LogSessionModal: React.FC = () => {
 
           {/* Date Picker */}
           <div>
-            <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
+            <label htmlFor="log-session-date" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0] mb-1.5">
               Practice Date <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -214,11 +226,13 @@ export const LogSessionModal: React.FC = () => {
                 <CalendarIcon className="w-4 h-4" />
               </div>
               <input
+                id="log-session-date"
                 type="date"
                 max={getTodayDateString()}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full text-sm font-medium rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                aria-describedby={errorField === 'log-session-date' ? 'log-session-form-error' : undefined}
                 required
               />
             </div>
@@ -227,17 +241,19 @@ export const LogSessionModal: React.FC = () => {
           {/* Session Notes / Reflections */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0]">
+              <label htmlFor="log-session-notes" className="block text-xs font-semibold text-[#4A524A] dark:text-[#A0AAA0]">
                 Reflection Notes <span className="text-xs font-normal text-[#5F6A5F] dark:text-[#A0AAA0]">(Optional)</span>
               </label>
               <span className="text-[11px] text-[#5F6A5F] dark:text-[#A0AAA0]">What went well? What was challenging?</span>
             </div>
             <textarea
+              id="log-session-notes"
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Practiced fingerpicking technique on Blackbird. Chord switches felt much smoother..."
               className="w-full text-sm rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-[#5F6A5F] dark:text-[#A0AAA0]/60"
+              aria-describedby={errorField === 'log-session-notes' ? 'log-session-form-error' : undefined}
             />
           </div>
 

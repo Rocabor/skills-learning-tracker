@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { useApp } from '../context/AppContext';
+import { useData } from '../context/DataContext';
+import { useModal } from '../context/ModalContext';
+import { useTimer } from '../context/TimerContext';
 import { HeatmapCalendar } from './HeatmapCalendar';
 import { ProgressRing } from './ProgressRing';
 import { formatMinutes, formatHoursDecimal, formatFullDate } from '../utils/dateUtils';
@@ -22,17 +24,10 @@ interface SkillDetailViewProps {
 }
 
 export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBack }) => {
-  const {
-    skills,
-    sessions,
-    skillStatsMap,
-    openLogModalWithSkill,
-    openEditSkillModal,
-    openEditSessionModal,
-    openShareModal,
-    deleteSession,
-    startTimer,
-  } = useApp();
+  const { skills, sessions, skillStatsMap, deleteSession } = useData();
+  const { openLogModalWithSkill, openEditSkillModal, openEditSessionModal, openShareModal } =
+    useModal();
+  const { startTimer } = useTimer();
 
   const [searchQuery, setSearchQuery] = useState('');
 

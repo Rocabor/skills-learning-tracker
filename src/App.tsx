@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { AppProvider, useApp } from './context/AppContext';
+import { PreferencesProvider, usePreferences } from './context/PreferencesContext';
+import { ToastProvider, useToast } from './context/ToastContext';
+import { ModalProvider, useModal } from './context/ModalContext';
+import { DataProvider, useData } from './context/DataContext';
+import { TimerProvider } from './context/TimerContext';
+import { InsightsProvider } from './context/InsightsContext';
+import { rememberFocusedElement } from './hooks/useFocusTrap';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { SkillDetailView } from './components/SkillDetailView';
@@ -13,23 +19,31 @@ import { Footer } from './components/Footer';
 import { CheckCircle2 } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
+  const { user, isGuest } = useData();
   const {
-    user,
-    isGuest,
     selectedSkillId,
     setSelectedSkillId,
-    toastMessage,
     openLogModalWithSkill,
-    toggleTheme,
     closeModals,
     isLogModalOpen,
     isSkillModalOpen,
     isShareModalOpen,
-    highContrast
-  } = useApp();
+  } = useModal();
+  const { toastMessage } = useToast();
+  const { toggleTheme, highContrast } = usePreferences();
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAccessibilityOpen, setIsAccessibilityOpen] = useState(false);
+
+  const openAuthModal = () => {
+    rememberFocusedElement();
+    setIsAuthModalOpen(true);
+  };
+
+  const openAccessibility = () => {
+    rememberFocusedElement();
+    setIsAccessibilityOpen(true);
+  };
 
   // Global Keyboard Shortcuts (N / L for log, T for theme, ? for help, Esc for back)
   useEffect(() => {
@@ -57,6 +71,7 @@ const MainAppContent: React.FC = () => {
         toggleTheme();
       } else if (e.key === '?') {
         e.preventDefault();
+        rememberFocusedElement();
         setIsAccessibilityOpen(true);
       } else if (e.key === 'Escape') {
         if (isLogModalOpen || isSkillModalOpen || isAuthModalOpen || isAccessibilityOpen || isShareModalOpen) {
@@ -88,7 +103,7 @@ const MainAppContent: React.FC = () => {
   if (!user && !isGuest) {
     return (
       <>
-        <LandingPage onOpenAuth={() => setIsAuthModalOpen(true)} />
+        <LandingPage onOpenAuth={openAuthModal} />
         <AuthModal
           isOpen={isAuthModalOpen}
           onClose={() => setIsAuthModalOpen(false)}
@@ -115,8 +130,8 @@ const MainAppContent: React.FC = () => {
 
       {/* Persistent App Header */}
       <Navbar
-        onOpenAuth={() => setIsAuthModalOpen(true)}
-        onOpenAccessibility={() => setIsAccessibilityOpen(true)}
+        onOpenAuth={openAuthModal}
+        onOpenAccessibility={openAccessibility}
       />
 
       {/* Main View Area */}
@@ -152,8 +167,18 @@ const MainAppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainAppContent />
-    </AppProvider>
+    <PreferencesProvider>
+      <ToastProvider>
+        <ModalProvider>
+          <DataProvider>
+            <TimerProvider>
+              <InsightsProvider>
+                <MainAppContent />
+              </InsightsProvider>
+            </TimerProvider>
+          </DataProvider>
+        </ModalProvider>
+      </ToastProvider>
+    </PreferencesProvider>
   );
 }

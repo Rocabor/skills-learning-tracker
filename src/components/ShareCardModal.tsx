@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useApp } from '../context/AppContext';
+import React, { useState, useEffect, useRef } from 'react';
+import { useModal } from '../context/ModalContext';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { generateShareCardCanvas } from '../utils/shareUtils';
 import { X, Download, Copy, Check, Sparkles } from 'lucide-react';
 
 export const ShareCardModal: React.FC = () => {
-  const { isShareModalOpen, setIsShareModalOpen, shareCardData } = useApp();
+  const { isShareModalOpen, setIsShareModalOpen, shareCardData } = useModal();
   const [cardTheme, setCardTheme] = useState<'dark' | 'emerald' | 'sunset'>('dark');
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, isShareModalOpen);
 
   useEffect(() => {
     if (!isShareModalOpen || !shareCardData) return;
@@ -49,6 +54,7 @@ export const ShareCardModal: React.FC = () => {
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
@@ -67,6 +73,7 @@ export const ShareCardModal: React.FC = () => {
           <button
             onClick={() => setIsShareModalOpen(false)}
             className="p-1.5 rounded-lg text-[#5F6A5F] dark:text-[#A0AAA0] hover:bg-[#F2F2EE] dark:hover:bg-[#262B26] cursor-pointer"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>

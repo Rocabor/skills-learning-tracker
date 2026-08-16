@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from '../context/AppContext';
+import { useData } from '../context/DataContext';
 import { Footer } from './Footer';
 import {
   Flame,
@@ -13,7 +13,7 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
-  const { enterGuestMode } = useApp();
+  const { enterGuestMode } = useData();
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#FAFAF8] dark:bg-[#131614] text-[#1A1D1A] dark:text-[#ECF0EC] transition-colors duration-200">

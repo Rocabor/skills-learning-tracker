@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { useData } from '../context/DataContext';
+import { useModal } from '../context/ModalContext';
+import { useTimer } from '../context/TimerContext';
+import { usePreferences } from '../context/PreferencesContext';
 import {
   Flame,
   Plus,
@@ -22,23 +25,10 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility }) => {
-  const {
-    user,
-    isGuest,
-    theme,
-    toggleTheme,
-    activeTimer,
-    pauseTimer,
-    resumeTimer,
-    stopTimer,
-    openLogModalWithSkill,
-    openAddSkillModal,
-    overallStats,
-    skills,
-    resetToSampleData,
-    logout,
-    setSelectedSkillId,
-  } = useApp();
+  const { user, isGuest, overallStats, skills, resetToSampleData, logout } = useData();
+  const { theme, toggleTheme } = usePreferences();
+  const { activeTimer, pauseTimer, resumeTimer, stopTimer } = useTimer();
+  const { openLogModalWithSkill, openAddSkillModal, setSelectedSkillId } = useModal();
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -186,7 +176,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
             {user ? (
               <button
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-1.5 p-1 rounded-full hover:ring-2 hover:ring-emerald-500/50 transition-all cursor-pointer focus:outline-none"
+                className="flex items-center gap-1.5 p-1 rounded-full hover:ring-2 hover:ring-emerald-500/50 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 aria-label={`${initials} user account menu`}
               >
                 <div className="w-8 h-8 rounded-full bg-[#E8E8E3] dark:bg-[#262B26] text-[#1A1D1A] dark:text-[#ECF0EC] font-semibold text-xs flex items-center justify-center border border-[#DDDDD6] dark:border-[#333A33]">
