@@ -2,9 +2,9 @@
 
 A personal practice tracker where you log sessions, manage skills, track streaks, and visualize your consistency through heatmaps and progress rings — built as a [Frontend Mentor Product Challenge](https://www.frontendmentor.io).
 
-**Live URL:** https://skills-learning-tracker-snowy.vercel.app
+**Live URL:** https://skills-learning.vercel.app
 
-![Skills Learning Tracker dashboard](./screenshot.png)
+![Skills Learning Tracker dashboard](https://snipboard.io/u9AI3B.jpg)
 
 ---
 
