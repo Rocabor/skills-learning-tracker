@@ -36,8 +36,15 @@ const ServerRegisterSchema = z.object({
 });
 
 const ServerLoginSchema = z.object({
-  email: z.string().trim().min(1, 'Email is required'),
-  password: z.string().min(1, 'Password is required'),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
+  password: z
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .max(72, 'Password cannot exceed 72 characters'),
 });
 
 const ServerForgotPasswordSchema = z.object({
