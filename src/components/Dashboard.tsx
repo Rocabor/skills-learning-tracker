@@ -451,50 +451,52 @@ export const Dashboard: React.FC = () => {
             </button>
           </div>
 
-          {isLoadingAI ? (
-            <div className="py-8 text-center">
-              <Sparkles className="w-6 h-6 text-emerald-500 animate-spin mx-auto mb-2" />
-              <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">Analyzing your practice logs with Gemini AI...</p>
-            </div>
-          ) : aiInsight ? (
-            <div className="space-y-3.5 text-xs">
-              <p className="text-[#1A1D1A] dark:text-[#ECF0EC] leading-relaxed font-medium">
-                {aiInsight.summary}
-              </p>
+          <div aria-live="polite">
+            {isLoadingAI ? (
+              <div className="py-8 text-center">
+                <Sparkles className="w-6 h-6 text-emerald-500 animate-spin mx-auto mb-2" />
+                <p className="text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">Analyzing your practice logs with Gemini AI...</p>
+              </div>
+            ) : aiInsight ? (
+              <div className="space-y-3.5 text-xs">
+                <p className="text-[#1A1D1A] dark:text-[#ECF0EC] leading-relaxed font-medium">
+                  {aiInsight.summary}
+                </p>
 
-              {aiInsight.highlights && aiInsight.highlights.length > 0 && (
-                <div className="space-y-1.5 bg-[#F9F9F7] dark:bg-[#232823] p-3 rounded-xl border border-[#E8E8E2] dark:border-[#262B26]">
-                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block mb-1">
-                    Key Momentum Highlights
-                  </span>
-                  {aiInsight.highlights.map((h, i) => (
-                    <div key={i} className="flex items-start gap-1.5 text-[#4A524A] dark:text-[#A0AAA0]">
-                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
-                      <span>{h}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+                {aiInsight.highlights && aiInsight.highlights.length > 0 && (
+                  <div className="space-y-1.5 bg-[#F9F9F7] dark:bg-[#232823] p-3 rounded-xl border border-[#E8E8E2] dark:border-[#262B26]">
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block mb-1">
+                      Key Momentum Highlights
+                    </span>
+                    {aiInsight.highlights.map((h, i) => (
+                      <div key={i} className="flex items-start gap-1.5 text-[#4A524A] dark:text-[#A0AAA0]">
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+                        <span>{h}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              {aiInsight.recommendation && (
-                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200">
-                  <span className="font-semibold block mb-0.5">Coach Recommendation:</span>
-                  <span className="text-[11px] leading-relaxed">{aiInsight.recommendation}</span>
-                </div>
-              )}
+                {aiInsight.recommendation && (
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200">
+                    <span className="font-semibold block mb-0.5">Coach Recommendation:</span>
+                    <span className="text-[11px] leading-relaxed">{aiInsight.recommendation}</span>
+                  </div>
+                )}
 
-              {aiInsight.reflectionPrompt && (
-                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200">
-                  <span className="font-semibold block mb-0.5">Today's Reflection Question:</span>
-                  <span className="text-[11px] italic">"{aiInsight.reflectionPrompt}"</span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="py-8 text-center text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
-              Click the refresh icon to generate AI practice insights.
-            </div>
-          )}
+                {aiInsight.reflectionPrompt && (
+                  <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200">
+                    <span className="font-semibold block mb-0.5">Today's Reflection Question:</span>
+                    <span className="text-[11px] italic">"{aiInsight.reflectionPrompt}"</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-xs text-[#5F6A5F] dark:text-[#A0AAA0]">
+                Click the refresh icon to generate AI practice insights.
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

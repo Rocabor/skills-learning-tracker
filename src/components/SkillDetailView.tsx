@@ -298,6 +298,7 @@ export const SkillDetailView: React.FC<SkillDetailViewProps> = ({ skillId, onBac
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search notes or dates..."
+              aria-label="Search practice sessions"
               className="w-full text-xs rounded-xl border border-[#DDDDD6] dark:border-[#333A33] bg-[#FAFAF8] dark:bg-[#232823] pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>

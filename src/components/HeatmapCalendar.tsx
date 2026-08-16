@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useData } from '../context/DataContext';
+import { useFocusTrap, rememberFocusedElement } from '../hooks/useFocusTrap';
 import type { HeatmapDay, Skill } from '../types';
 import { getTodayDateString, formatMinutes, formatFullDate } from '../utils/dateUtils';
 import { Table as TableIcon, Grid as GridIcon } from 'lucide-react';
@@ -18,6 +19,10 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
   const [hoveredDay, setHoveredDay] = useState<HeatmapDay | null>(null);
   const [activeDayModal, setActiveDayModal] = useState<HeatmapDay | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+
+  const dayModalRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dayModalRef, activeDayModal !== null);
 
   // Active skill filter
   const currentFilter = filteredSkillId || selectedFilter;
@@ -222,7 +227,11 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
                           key={day.date}
                           onMouseEnter={() => setHoveredDay(day)}
                           onMouseLeave={() => setHoveredDay(null)}
-                          onClick={() => hasPractice && setActiveDayModal(day)}
+                          onClick={() => {
+                            if (!hasPractice) return;
+                            rememberFocusedElement();
+                            setActiveDayModal(day);
+                          }}
                           className={`w-[14px] h-[14px] sm:w-[15px] sm:h-[15px] rounded-[3px] transition-all cursor-pointer relative focus:outline-none focus:ring-1 focus:ring-emerald-500 ${getCellColor(
                             day,
                           )} ${
@@ -318,11 +327,24 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
 
       {/* Day Details Modal / Popover on Click */}
       {activeDayModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+        <div
+          ref={dayModalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="day-details-title"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              // Close this dialog without triggering App-level shortcuts
+              e.stopPropagation();
+              setActiveDayModal(null);
+            }
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+        >
           <div className="bg-white dark:bg-[#1C201C] border border-[#DDDDD6] dark:border-[#333A33] rounded-2xl p-5 max-w-md w-full shadow-2xl animate-in fade-in duration-150">
             <div className="flex items-center justify-between border-b border-[#DDDDD6] dark:border-[#262B26] pb-3 mb-3">
               <div>
-                <h3 className="font-display font-bold text-base text-[#1A1D1A] dark:text-[#ECF0EC]">
+                <h3 id="day-details-title" className="font-display font-bold text-base text-[#1A1D1A] dark:text-[#ECF0EC]">
                   {formatFullDate(activeDayModal.date)}
                 </h3>
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
