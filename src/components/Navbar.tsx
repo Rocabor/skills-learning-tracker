@@ -13,7 +13,6 @@ import {
   Settings,
   RotateCcw,
   LogOut,
-  Sliders,
   ChevronDown,
 } from 'lucide-react';
 
@@ -170,16 +169,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenAccessibility 
             title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
           >
             {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-          </button>
-
-          {/* Accessibility Settings Button */}
-          <button
-            onClick={onOpenAccessibility}
-            className="p-2 rounded-lg text-[#4A524A] dark:text-[#A0AAA0] hover:bg-[#E8E8E3] dark:hover:bg-[#262B26] transition-colors cursor-pointer"
-            aria-label="Accessibility settings"
-            title="Accessibility settings (Reduced motion, Contrast)"
-          >
-            <Sliders className="w-4 h-4" />
           </button>
 
           {/* Primary Action: + Log Session */}
